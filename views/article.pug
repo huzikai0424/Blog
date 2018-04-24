@@ -4,6 +4,7 @@ html
         meta(charset="UTF-8")
         meta(name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1,minimum-scale=1")
         link(rel="stylesheet/less" type="text/css" href="css/style.less")
+        link(href="css/github-markdown.css" rel="stylesheet")
         script(src="js/less.min.js")
     body
         header
@@ -22,44 +23,28 @@ html
                 .leftBox
                     article
                         .article-box
-                            .card-thumb
-                                img(src="images/1.jpg" alt="thumb")
-                            h2.article-title #[a(href='/article') 用localStorage实现多个标签只有一个音乐播放] 
-                            p.article-describe 前几天发现如果打开两个标签页，而且都在播放博客上的音乐，听起来会很乱，需要手动去暂停第二个标签页的音乐才行。 然而网易云音乐实现了两个标签页只有一个页面播放,会自...
-                        .article-footer 2018年3月23日  11.15k 次阅读  0 条评论  3.58k 人点赞 
-                            .readMove 阅读全文
+                            .markdown-body !{markdown}
                     article
                         .article-box
-                            .card-thumb
-                                img(src="images/1.jpg" alt="thumb")
-                            h2.article-title 用localStorage实现多个标签只有一个音乐播放
-                            p.article-describe 前几天发现如果打开两个标签页，而且都在播放博客上的音乐，听起来会很乱，需要手动去暂停第二个标签页的音乐才行。 然而网易云音乐实现了两个标签页只有一个页面播放,会自...
-                        .article-footer 2018年3月23日  11.15k 次阅读  0 条评论  3.58k 人点赞 
-                            .readMove 阅读全文
+                            .copyright
+                                p #[strong 版权声明: ]#[span 本站文章除特别声明外，均为本站原创或翻译。转载请注明出处，尊重他人劳动成果。]
+                                p #[strong 转载请注明出处链接: ]#[span pomelo-单栏式简约清新wordpress主题] 
                     article
                         .article-box
-                            .card-thumb
-                                img(src="images/1.jpg" alt="thumb")
-                            h2.article-title 用localStorage实现多个标签只有一个音乐播放
-                            p.article-describe 前几天发现如果打开两个标签页，而且都在播放博客上的音乐，听起来会很乱，需要手动去暂停第二个标签页的音乐才行。 然而网易云音乐实现了两个标签页只有一个页面播放,会自...
-                        .article-footer 2018年3月23日  11.15k 次阅读  0 条评论  3.58k 人点赞 
-                            .readMove 阅读全文   
+                            .next_article
+                                a.prev(href="#") <<我是上一篇
+                                a.next(href="#") 我是下一篇>>
                     article
                         .article-box
-                            .card-thumb
-                                img(src="images/1.jpg" alt="thumb")
-                            h2.article-title 用localStorage实现多个标签只有一个音乐播放
-                            p.article-describe 前几天发现如果打开两个标签页，而且都在播放博客上的音乐，听起来会很乱，需要手动去暂停第二个标签页的音乐才行。 然而网易云音乐实现了两个标签页只有一个页面播放,会自...
-                        .article-footer 2018年3月23日  11.15k 次阅读  0 条评论  3.58k 人点赞 
-                            .readMove 阅读全文   
-                    #page-nav 
-                        ul
-                            li #[a(href="#") 1]
-                            li #[a(href="#") 2]
-                            li #[a(href="#") 3]
-                            li #[a(href="#") 4]
-                            li #[a(href="#") >]
-                            li #[a(href="#") »]
+                            #comment
+                                h2 发表评论
+                                p.islogin 已登入为admin。登出？
+                                textarea#comment.commentbody(name="comment", rows="5" placeholder="留下来说几句吧...")
+                                #author-info
+                                    input#nickname(placeholder="昵称" type="text")
+                                    input#email(placeholder="邮箱" type="text")
+                                    input#website(placeholder="网站" type="text")
+                                    button#submit 发表评论
                 .rightBox
                     aside.aboutMe
                         .photo-background

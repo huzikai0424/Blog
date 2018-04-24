@@ -18,6 +18,9 @@
     "koa-static": "^4.0.2",
     "koa-views": "^6.1.4",
     "less": "^3.0.2",
+    "marked": "^0.3.19",
+    "mongoose": "^5.0.16",
+    "node-fetch": "^2.1.2",
     "pug": "^2.0.3"
   }
 }
