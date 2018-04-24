@@ -13,6 +13,7 @@
   "author": "huzikai",
   "license": "MIT",
   "dependencies": {
+    "glob": "^7.1.2",
     "koa": "^2.5.0",
     "koa-router": "^7.4.0",
     "koa-static": "^4.0.2",
