@@ -6,6 +6,7 @@ html
         link(rel="stylesheet/less" type="text/css" href="css/style.less")
         link(href="css/github-markdown.css" rel="stylesheet")
         script(src="js/less.min.js")
+        
     body
         header
             nav
@@ -37,14 +38,7 @@ html
                     article
                         .article-box
                             #comment
-                                h2 发表评论
-                                p.islogin 已登入为admin。登出？
-                                textarea#comment.commentbody(name="comment", rows="5" placeholder="留下来说几句吧...")
-                                #author-info
-                                    input#nickname(placeholder="昵称" type="text")
-                                    input#email(placeholder="邮箱" type="text")
-                                    input#website(placeholder="网站" type="text")
-                                    button#submit 发表评论
+                                
                 .rightBox
                     aside.aboutMe
                         .photo-background
@@ -93,3 +87,4 @@ html
         footer
             #block 浙ICP备16046701号 · Copyright © 2018 痴情的小五
             #copyright Copyright © 2018 痴情的小五 · Powered by WordPress · Theme Pomelo
+        script(src="index.js")

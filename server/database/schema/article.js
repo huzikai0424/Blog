@@ -6,14 +6,6 @@ const articleScheme=new Schema({
     title:String,
     des:String,
     coverPic:String,
-    postDate: {
-        type: Date,
-        default: Date.now()
-    },
-    lastupdataDate: {
-        type:Date,
-        default:Date.now()
-    },
     readTime:{
         type:Number,
         default:0
@@ -26,6 +18,6 @@ const articleScheme=new Schema({
         type: Number,
         default: 0
     }
-})
+},{ timestamps: true })
 
 mongoose.model('Article', articleScheme)

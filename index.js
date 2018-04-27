@@ -2,45 +2,33 @@
 
 const Koa=require('koa')
 const mongoose = require('mongoose')
-const views=require('koa-views')
+const views = require('koa-views')
 const serve=require('koa-static')
 const {resolve}=require('path')
 const path= require('path')
 const {connect,initSchemas} =require('./server/database/init')
-// const router = require('./routes')()
-// const PORT=1234
-// const app=new Koa()
-// const c = require('child_process');
-// const main = serve(path.join(__dirname,'./static')) 
-// const marked=require('marked')
-// const fs=require('fs')
-// const Router = require('koa-router')
-// const router = new Router()
+
+const router = require('./server/routes/index')
+const PORT=1234
+const app=new Koa()
+const c = require('child_process');
+const main = serve(path.join(__dirname,'./static')) 
 
 ;(async()=>{
     await connect()
     initSchemas()
 
-    const Article = mongoose.model('Article')
+    // const Article = mongoose.model('Article')
 
-    const movies = await Article.find()
-    console.log(movies)
+    // const movies = await Article.find()
+    // console.log(movies)
 })()
-/*app.use(main) //静态资源
 
+app.use(main) //静态资源
 app.use(views(resolve(__dirname,'./views'),{    //view默认模板后缀
     extension:'pug'
 }))
-app.use(router.routes()) //路由
-router.get('/article',async(ctx)=>{
-    let data = marked(fs.readFileSync('./article/README.md').toString())
-    await ctx.render('article', {
-        markdown: data
-    })
-})
-router.get('/', async (ctx) => {
-    await ctx.render('index')
-}) 
+app.use(router.routes()).use(router.allowedMethods)
 app.listen(1234)
 console.log("Server runing at port: " + PORT + ".");
-//c.exec(`start http://localhost:${PORT}/index.html`);*/
+c.exec(`start http://localhost:${PORT}`);

@@ -2,10 +2,6 @@ const mongoose=require('mongoose')
 const Schema=mongoose.Schema
 const Mixed=Schema.Types.Mixed
 const commentScheme=new Schema({
-    id:{
-        unique:true,
-        type:String
-    },
     pid:{
         type:String,
         default:0
@@ -13,13 +9,9 @@ const commentScheme=new Schema({
     nickname:String,
     email:String,
     website:String,
-    time: {
-        type: Date,
-        default: Date.now()
-    },
     ua:String,
     detail:String,
     qq:String
-})
+},{timestamps:true})
 
 mongoose.model('Comment', commentScheme)
