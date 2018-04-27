@@ -15,6 +15,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "glob": "^7.1.2",
+    "hoek": "^5.0.3",
     "koa": "^2.5.0",
     "koa-body": "^2.5.0",
     "koa-router": "^7.4.0",
