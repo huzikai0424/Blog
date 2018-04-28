@@ -19,14 +19,12 @@ router.get('/', async (ctx) => {
 router.post('/submitComment', koaBody(), async(ctx)=>{
     const userAgent = ctx.req.headers['user-agent']
     const postData=ctx.request.body.data
-    const timesteamp=new Date().getTime()
     const Comment = mongoose.model('Comment')
     let data=new Comment({
         pid:0,
         nickname: postData.nickname,
         email: postData.email,
         website: postData.website,
-        time: timesteamp,
         ua: userAgent,
         detail: postData.comment,
         qq:""
@@ -43,8 +41,9 @@ router.post('/submitComment', koaBody(), async(ctx)=>{
     })
 })
 router.get('/getCommentList',async(ctx)=>{
+    const sort = ctx.query.sort == "asc" ?1:-1 // 1升序,-1降序
     const Comment = mongoose.model('Comment')
-    await Comment.find({}).then((data)=>{
+    await Comment.find({}).sort({'createdAt':sort}).then((data)=>{
         ctx.body=data
     })
 })

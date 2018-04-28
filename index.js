@@ -31,4 +31,4 @@ app.use(views(resolve(__dirname,'./views'),{    //view默认模板后缀
 app.use(router.routes()).use(router.allowedMethods)
 app.listen(1234)
 console.log("Server runing at port: " + PORT + ".");
-c.exec(`start http://localhost:${PORT}`);
+c.exec(`start http://localhost:${PORT}/article`);
