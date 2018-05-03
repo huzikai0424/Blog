@@ -25,6 +25,7 @@
     "less-loader": "^4.1.0",
     "marked": "^0.3.19",
     "mongoose": "^5.0.16",
+    "mysql": "^2.15.0",
     "node-fetch": "^2.1.2",
     "nodemon": "^1.17.3",
     "pug": "^2.0.3",

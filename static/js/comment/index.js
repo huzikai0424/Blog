@@ -72,7 +72,7 @@ module.exports = class Comment extends Component{
                 <div className="author-info">
                     <img src={`//secure.gravatar.com/avatar/${Md5email}?s=100`}/>
                     <p><a href={obj.website} target="_blank">{obj.nickname}</a><span>chrome win10</span></p>
-                    <p className="comment-time">{this.formatTime(obj.createdAt)}</p>
+                        <p className="comment-time">{this.formatTime(obj.timestamp)}</p>
                 </div>
                     <div className="comment-body">
                     {obj.detail}

@@ -14,16 +14,6 @@ const app=new Koa()
 const c = require('child_process');
 const main = serve(path.join(__dirname,'./static')) 
 
-;(async()=>{
-    await connect()
-    initSchemas()
-
-    // const Article = mongoose.model('Article')
-
-    // const movies = await Article.find()
-    // console.log(movies)
-})()
-
 app.use(main) //静态资源
 app.use(views(resolve(__dirname,'./views'),{    //view默认模板后缀
     extension:'pug'

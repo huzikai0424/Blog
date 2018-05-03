@@ -6,6 +6,7 @@ const articleScheme=new Schema({
     title:String,
     des:String,
     coverPic:String,
+    type:String,
     readTime:{
         type:Number,
         default:0
