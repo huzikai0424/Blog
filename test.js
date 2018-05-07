@@ -17,14 +17,25 @@ connection.connect((err)=>{
     console.log("数据库连接成功")
 });
 
-// glob(join(__dirname,'./article',"**/*.md"),function(err,files) {
-//     files.forEach((item,index)=>{
-//         let type = item.match(/article\/(\S*)\//) ? item.match(/article\/(\S*)\//)[1] : "暂无分类"
-//         let fileName = item.replace(/(.*\/)*([^.]+).*/ig, "$2")
-//         console.log(`分类名字：${type},文件名：${fileName}`) 
+glob(join(__dirname,'./article',"**/*.md"),function(err,files) {
+    files.forEach((item,index)=>{
         
-//     })
-    
-//     // var data=fs.readFileSync(files[0]).toString()
-//     console.log(data)
-// })
+        let type = item.match(/article\/(\S*)\//) ? item.match(/article\/(\S*)\//)[1] : "暂无分类"
+        let fileName = item.replace(/(.*\/)*([^.]+).*/ig, "$2")
+        console.log(`分类名字：${type},文件名：${fileName}`) 
+        
+        const data = [fs.readFileSync(item).toString(), fileName]
+        
+        let addSQL='INSERT INTO articles(posts,fileName) values(?,?)'
+        return new Promise((resolve,reject)=>{
+            connection.query(addSQL,data,function(err,result){
+                if(err){
+                    reject(err)
+                   return
+                }
+                resolve(result)
+            })
+        })
+        
+    })
+})

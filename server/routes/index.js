@@ -6,25 +6,41 @@ const router= new Router()
 const marked = require('marked')
 const fs = require('fs')
 const mysql = require('mysql')
-const connection = mysql.createConnection({
+const connection  = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: 'root',
     database: 'blog'
 })
-connection.connect((err) => {
-    if (err) {
-        console.log("数据库连接失败", err)
-        return
-    }
-    console.log("数据库连接成功")
-});
-const { connect, initSchemas } = require('../database/init')
 router.get('/article', async (ctx) => {
     let data = marked(fs.readFileSync('./article/README.md').toString())
     await ctx.render('article', {
         markdown: data
     })
+})
+router.get('/article/:id', async(ctx) => {
+    const id = ctx.params.id
+    const sql= `select * from articles where id = ${id}`
+    return new Promise((resolve,reject)=>{
+        connection.query(sql, async function (err, result){
+            if (result.length) {
+                let data = marked(fs.readFileSync(`article/${result[0].pathName}/${result[0].fileName}.md`).toString())
+                await ctx.render('article', {
+                    markdown: data,
+                    title: result[0].fileName
+                })
+                resolve(result);
+            }
+            else {
+                ctx.body = {
+                    success: false,
+                    err: err
+                }
+                reject(err);
+            }
+        })
+    })
+    
 })
 
 router.get('/', async (ctx) => {
@@ -36,21 +52,22 @@ router.post('/submitComment', koaBody(), async(ctx)=>{
     const postData=ctx.request.body.data
     let addSQL ='insert into comments(pid,nickname,email,website,ua,detail,qq,timestamp) values (0,?,?,?,?,?,?,NOW())';
     let data = [postData.nickname, postData.email, postData.website, userAgent, postData.comment,postData.qq]
-    return new Promise((resolve, reject) => {
-        connection.query(addSQL, data,function (err,result) {
-            if(err){
-                reject(
-                    ctx.body = {
-                    success: false,
-                    err: err
-                })
-                return;
-            }
-            resolve(ctx.body = {
-                success: true
-            })
-        })
-    })
+    
+    // return new Promise((resolve, reject) => {
+    //     connection.query(addSQL, data,function (err,result) {
+    //         if(err){
+    //             reject(
+    //                 ctx.body = {
+    //                 success: false,
+    //                 err: err
+    //             })
+    //             return;
+    //         }
+    //         resolve(ctx.body = {
+    //             success: true
+    //         })
+    //     })
+    // })
 })
 router.get('/getCommentList',(ctx)=>{
     
