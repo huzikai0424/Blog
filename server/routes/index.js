@@ -6,6 +6,9 @@ const router= new Router()
 const marked = require('marked')
 const fs = require('fs')
 const mysql = require('mysql')
+const fm = require("front-matter")
+const glob = require('glob')
+const { join } = require('path')
 const connection  = mysql.createPool({
     host: 'localhost',
     user: 'root',
@@ -13,9 +16,12 @@ const connection  = mysql.createPool({
     database: 'blog'
 })
 router.get('/article', async (ctx) => {
-    let data = marked(fs.readFileSync('./article/README.md').toString())
+    let data = fs.readFileSync('./article/javascript/函数节流和函数防抖.md').toString()
+    let meta = fm(data)
+    let content = marked(meta.body)
+    console.log(meta)
     await ctx.render('article', {
-        markdown: data
+        markdown: content
     })
 })
 router.get('/article/:id', async(ctx) => {
@@ -23,6 +29,8 @@ router.get('/article/:id', async(ctx) => {
     const sql= `select * from articles where id = ${id}`
     return new Promise((resolve,reject)=>{
         connection.query(sql, async function (err, result){
+            let meta=fm(result)
+            console.log(meta)
             if (result.length) {
                 let data = marked(fs.readFileSync(`article/${result[0].pathName}/${result[0].fileName}.md`).toString())
                 await ctx.render('article', {
@@ -44,7 +52,45 @@ router.get('/article/:id', async(ctx) => {
 })
 
 router.get('/', async (ctx) => {
-    await ctx.render('index')
+    let startTime = new Date().getTime()
+    // let postListMeta = ""
+    function delHtmlTag(str) {
+        return str.replace(/<[^>]+>/g, "");//去掉所有的html标记
+    }
+    let postListMeta = await new Promise((resolve,reject)=>{
+        glob(join(__dirname, '../../article', "**/*.md"), function (err, files) {
+            let postListMeta = []
+            files.forEach((item, index) => {
+                let meta = fm(fs.readFileSync(item).toString())
+                let html = ""
+                //let substr = meta.body.split("<!--more-->").length < 2 ? meta.body : meta.body.split("<!--more-->")[0]
+                if (meta.body.split("<!--more-->").length < 2){ //没有more标签
+                    html = delHtmlTag(marked(meta.body)).substr(0,130)   //截取去除html标签后的180字
+                }else{
+                    let data = meta.body.split("<!--more-->")[0]
+                    html = delHtmlTag(marked(data))                     //截取move标签之前的全部
+                }
+                
+                if (JSON.stringify(meta.attributes) != "{}"){
+                    meta.attributes.profile = html
+                    postListMeta.push(meta.attributes)
+                }
+            })
+            resolve(postListMeta)
+        })
+    })
+    let loadTime = new Date().getTime() - startTime
+    if(loadTime>1000){
+        loadTime = `${loadTime/1000} 秒`
+    }else{
+        loadTime = `${loadTime}毫秒`
+    }
+    await ctx.render('index',{
+        loadTime: loadTime,
+        postListMeta: postListMeta
+    })
+    
+    //let Profile = marked(meta.body.split("<!--more-->")[0])
 }) 
 
 router.post('/submitComment', koaBody(), async(ctx)=>{

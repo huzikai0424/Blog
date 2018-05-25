@@ -6,7 +6,7 @@ const views = require('koa-views')
 const serve=require('koa-static')
 const {resolve}=require('path')
 const path= require('path')
-const {connect,initSchemas} =require('./server/database/init')
+//const {connect,initSchemas} =require('./server/database/init')
 
 const router = require('./server/routes/index')
 const PORT=1234
@@ -20,5 +20,6 @@ app.use(views(resolve(__dirname,'./views'),{    //view默认模板后缀
 }))
 app.use(router.routes()).use(router.allowedMethods)
 app.listen(1234)
-console.log("Server runing at port: " + PORT + ".");
-c.exec(`start http://localhost:${PORT}/article`);
+console.log(`Server runing at http://localhost:${PORT}/`)
+//console.log("Server runing at port: " + PORT + ".");
+//c.exec(`start http://localhost:${PORT}`);

@@ -1,3 +1,10 @@
+---
+title: kk-koa-framework文档
+description: 使用文档
+text: hello world
+date: 2017/05/24
+---
+
 # kk-koa-framework
 ## 安装	| Install
 ```shell
