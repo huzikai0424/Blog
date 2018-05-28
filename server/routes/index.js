@@ -10,7 +10,7 @@ const fm = require("front-matter")
 const glob = require('glob')
 const { join } = require('path')
 const options = require('../../theme.config')
-const connection  = mysql.createPool({
+const connection = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: 'root',
@@ -85,6 +85,7 @@ router.get('/', async (ctx) => {
                 }
             })
             resolve(postListMeta)
+            console.log(postListMeta)
         })
     })
     let loadTime = new Date().getTime() - startTime
@@ -143,5 +144,75 @@ router.get('/getCommentList',(ctx)=>{
 router.get('/userAgent',(ctx)=>{
     let userAgent = ctx.req.headers['user-agent']
     ctx.body = userAgent
+})
+
+router.get('/update', async(ctx) => {
+    let startTime = new Date().getTime()
+    // let postListMeta = ""
+    function delHtmlTag(str) {
+        return str.replace(/<[^>]+>/g, "");//去掉所有的html标记
+    }
+    let postListMeta = await new Promise((resolve, reject) => {
+        glob(join(__dirname, '../../article', "**/*.md"), function (err, files) {
+            let postListMeta = []
+            let tags = []
+            files.forEach((item, index) => {
+                let meta = fm(fs.readFileSync(item).toString())
+                let html = ""
+                //if(tags.indexOf())
+                meta.attributes.tags.split("/").forEach((item, index) => {
+                    if (tags.indexOf(item) == -1 && item) {
+                        tags.push(item)
+                    }
+                })
+                //let substr = meta.body.split("<!--more-->").length < 2 ? meta.body : meta.body.split("<!--more-->")[0]
+                if (meta.body.split("<!--more-->").length < 2) { //没有more标签
+                    html = delHtmlTag(marked(meta.body)).substr(0, 130)   //截取去除html标签后的180字
+                } else {
+                    let data = meta.body.split("<!--more-->")[0]
+                    html = delHtmlTag(marked(data))                     //截取move标签之前的全部
+                }
+                if (JSON.stringify(meta.attributes) != "{}") {
+                    //meta.attributes.tags = tags
+                    meta.attributes.profile = html
+                    postListMeta.push(meta)
+                }
+            })
+            
+            resolve(postListMeta)
+        })
+    })
+    
+    // await ctx.render('index', {
+    //     options: options,
+    //     loadTime: loadTime,
+    //     postListMeta: postListMeta,
+    //     tags: postListMeta[0].tags
+    // })
+    const sort = ctx.query.sort == "asc" ? "asc" : "desc" // 1升序,-1降序
+    let addSql  = `INSERT INTO articles(title,des,posts,tags,postTime) VALUES ?`
+    let arr=[]
+    postListMeta.forEach((item,index)=>{
+        let attributes = item.attributes
+        let body = item.body
+        let arrFormat = [
+            attributes.title,
+            attributes.profile,
+            body,
+            attributes.tags,
+            new Date().getTime(),
+        ]
+        arr.push(arrFormat)
+    })
+    return new Promise((resolve, reject) => {
+        connection.query(addSql, [arr],(err, result) => {
+            if (err) {
+                reject(err)
+                return
+            } 
+            ctx.body = result
+            resolve(result)
+        })
+    })
 })
 module.exports = router
