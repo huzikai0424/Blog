@@ -3,12 +3,16 @@ html
     head
         meta(charset="UTF-8")
         meta(name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1,minimum-scale=1")
+        meta(name="keywords" content=options.seo.keywords)
+        meta(name="description" content=options.seo.description)
         link(rel="stylesheet/less" type="text/css" href="css/style.less")
+        title #{options.seo.title}-#{options.seo.subtitle} 
+        link(rel="shortcut icon" href="images/favicon.png")
         script(src="js/less.min.js")
     body
         header
             nav
-                .site-logo  痴情的小五
+                .site-logo  #{options.themeOptions.nickname}
                 .site-nav
                     ul#menu
                         li 首页
@@ -29,10 +33,10 @@ html
                                 h2.article-title #[a(href='/article')=item.title] 
                                 p.article-describe!=item.profile 
                             .article-footer 
-                                span 2018年3月23日  
-                                span 11.15k 次阅读  
-                                span 0 条评论  
-                                span 3.58k 人点赞 
+                                span #{item.date}  
+                                //- span 11.15k 次阅读  
+                                //- span 0 条评论  
+                                //- span 3.58k 人点赞 
                                 .readMove 阅读全文
                     
                     #page-nav 
@@ -47,49 +51,33 @@ html
                     aside.aboutMe
                         .photo-background
                         .avatar
-                            img(src="images/avatar.jpg" alt="头像")
-                        .notes 最强咸鱼...
+                            img(src=options.themeOptions.avatar alt="头像")
+                        .notes #{options.themeOptions.description}
                         .statistics
                             ul
                                 li
-                                    .count 12
+                                    .count #{postListMeta.length}
                                     .type 文章
                                 li
-                                    .count 12
-                                    .type 文章
+                                    .count 0
+                                    .type 朋友
                                 li
-                                    .count 12
-                                    .type 文章
+                                    .count 0
+                                    .type 评论
                         .contact
                             ul
-                                li #[img(src="images/QQ.png")]  QQ
+                                li #[img(src="images/QQ.png")] QQ
                                 li #[img(src="images/weixin.png")] 微信
-                                li #[img(src="images/weibo.png")] 微博
-                                li #[img(src="images/github3.png")] github
+                                li #[img(src="images/weibo.png")] #[a(href=`${options.contact.weibo}`  target="_blank" ) 微博] 
+                                li #[img(src="images/github3.png")] #[a(href=`${options.contact.github}` target="_blank") github] 
                     aside.tags
                         .title 标签云
                         .box
                             ul 
-                                li css
-                                li html
-                                li javascript
-                                li php
-                                li IE兼容
-                                li mysql
-                                li WordPress
-                                li 代码
-                                li 碎碎念
-                                li css
-                                li html
-                                li javascript
-                                li php
-                                li IE兼容
-                                li mysql
-                                li WordPress
-                                li 代码
-                                li 碎碎念
+                                each item in tags
+                                    li= item
         footer
-            #block 浙ICP备16046701号  ·  总用时:  #{loadTime}
+            #block #{options.themeOptions.ICP}  ·  总用时:  #{loadTime}
            
-            #copyright © 2018 痴情的小五 · Powered by #[a(href="https://nodejs.org/en/") NodeJS] · Theme #[a(href="https://github.com/huzikai0424/Blog") Absorbed]
+            #copyright #{options.themeOptions.copyright} · Powered by #[a(href="https://nodejs.org/en/") NodeJS] · Theme #[a(href="https://github.com/huzikai0424/Blog") Absorbed]
         script(scr="/dist/index.js")

@@ -1,7 +1,7 @@
 ---
 title: react ajax渲染
 description: Nothing to see here
-text: hello world
+tags: react/js
 date: 2016/04/24
 ---
 

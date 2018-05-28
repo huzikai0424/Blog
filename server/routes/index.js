@@ -9,6 +9,7 @@ const mysql = require('mysql')
 const fm = require("front-matter")
 const glob = require('glob')
 const { join } = require('path')
+const options = require('../../theme.config')
 const connection  = mysql.createPool({
     host: 'localhost',
     user: 'root',
@@ -60,9 +61,16 @@ router.get('/', async (ctx) => {
     let postListMeta = await new Promise((resolve,reject)=>{
         glob(join(__dirname, '../../article', "**/*.md"), function (err, files) {
             let postListMeta = []
+            let tags = [] 
             files.forEach((item, index) => {
                 let meta = fm(fs.readFileSync(item).toString())
                 let html = ""
+                //if(tags.indexOf())
+                meta.attributes.tags.split("/").forEach((item,index)=>{
+                    if(tags.indexOf(item)==-1&&item){
+                        tags.push(item)
+                    }
+                })
                 //let substr = meta.body.split("<!--more-->").length < 2 ? meta.body : meta.body.split("<!--more-->")[0]
                 if (meta.body.split("<!--more-->").length < 2){ //没有more标签
                     html = delHtmlTag(marked(meta.body)).substr(0,130)   //截取去除html标签后的180字
@@ -70,8 +78,8 @@ router.get('/', async (ctx) => {
                     let data = meta.body.split("<!--more-->")[0]
                     html = delHtmlTag(marked(data))                     //截取move标签之前的全部
                 }
-                
                 if (JSON.stringify(meta.attributes) != "{}"){
+                    meta.attributes.tags=tags
                     meta.attributes.profile = html
                     postListMeta.push(meta.attributes)
                 }
@@ -86,8 +94,10 @@ router.get('/', async (ctx) => {
         loadTime = `${loadTime}毫秒`
     }
     await ctx.render('index',{
+        options: options,
         loadTime: loadTime,
-        postListMeta: postListMeta
+        postListMeta: postListMeta,
+        tags: postListMeta[0].tags
     })
     
     //let Profile = marked(meta.body.split("<!--more-->")[0])
