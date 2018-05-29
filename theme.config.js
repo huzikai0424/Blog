@@ -13,6 +13,9 @@
  * 
  * blogAge:博客运行时间
  * showProgress:显示顶部进度条
+ * 
+ * orderBy:文章排序
+ * desc:是否降序
  */
 
 
@@ -40,5 +43,16 @@ module.exports ={
         wechat:"hzk0424",
         weibo:"https://weibo.com/p/1005055758170434",
         github:"https://github.com/huzikai0424"
+    },
+    article:{
+        orderBy:"postTime",
+        desc:true,
+        pageSize:10
+    },
+    comment:{
+        orderBy: "postTime",
+        desc: true,
+        pageSize: 10
     }
+
 }

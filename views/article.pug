@@ -1,31 +1,16 @@
 doctype html
 html
     head
-        meta(charset="UTF-8")
-        meta(name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1,minimum-scale=1")
-        link(href="/css/style.less" rel="stylesheet/less")
-        link(href="/css/github-markdown.css" rel="stylesheet")
-        script(src="/js/less.min.js")
-        
+        include meta.pug
     body
-        header
-            nav
-                .site-logo  痴情的小五
-                .site-nav
-                    ul#menu
-                        li 首页
-                        li 分类
-                        li 说说
-                        li 关于
-                    .site-search
-                        input#search(type="text" placeholder="Search...")
+        include header.pug
         main
             .wrap
                 .leftBox
                     article
                         .article-box
                             .article-title  
-                                h1 title
+                                h1 #{data.title}
                             .markdown-body !{markdown}
                     article
                         .article-box
@@ -86,7 +71,8 @@ html
                                 li WordPress
                                 li 代码
                                 li 碎碎念
-        footer
-            #block 浙ICP备16046701号 · Copyright © 2018 痴情的小五
-            #copyright Copyright © 2018 痴情的小五 · Powered by WordPress · Theme Pomelo
+        include footer.pug
+        script.
+            var data = !{JSON.stringify(comments)};
         script(src="../index.js")
+        //- //script(src="/dist/index.js")

@@ -1,0 +1,13 @@
+each item in res
+    article
+        .article-box
+            .card-thumb
+                img(src="images/1.jpg" alt="thumb")
+            h2.article-title #[a(href=`/article/${item.id}`)=item.title] 
+            p.article-describe!=item.des 
+        .article-footer 
+            span #{item.postTime}  
+            span #{item.read} 次阅读  
+            span #{item.comment} 条评论  
+            span #{item.like} 人点赞 
+            .readMove 阅读全文

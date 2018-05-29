@@ -1,0 +1,29 @@
+.rightBox
+    aside.aboutMe
+        .photo-background
+        .avatar
+            img(src=options.themeOptions.avatar alt="头像")
+        .notes #{options.themeOptions.description}
+        .statistics
+            ul
+                li
+                    .count #{res.length}
+                    .type 文章
+                li
+                    .count 0
+                    .type 朋友
+                li
+                    .count 0
+                    .type 评论
+        .contact
+            ul
+                li #[img(src="images/QQ.png")] QQ
+                li #[img(src="images/weixin.png")] 微信
+                li #[img(src="images/weibo.png")] #[a(href=`${options.contact.weibo}`  target="_blank" ) 微博] 
+                li #[img(src="images/github3.png")] #[a(href=`${options.contact.github}` target="_blank") github] 
+    aside.tags
+        .title 标签云
+        .box
+            ul 
+                each item in tags
+                    li= item

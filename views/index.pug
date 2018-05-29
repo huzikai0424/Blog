@@ -1,83 +1,16 @@
 doctype html
 html
     head
-        meta(charset="UTF-8")
-        meta(name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1,minimum-scale=1")
-        meta(name="keywords" content=options.seo.keywords)
-        meta(name="description" content=options.seo.description)
-        link(rel="stylesheet/less" type="text/css" href="css/style.less")
-        title #{options.seo.title}-#{options.seo.subtitle} 
-        link(rel="shortcut icon" href="images/favicon.png")
-        script(src="js/less.min.js")
+        include meta.pug
     body
-        header
-            nav
-                .site-logo  #{options.themeOptions.nickname}
-                .site-nav
-                    ul#menu
-                        li 首页
-                        li 碎碎念
-                        li 技术
-                        li 说说
-                        li 关于
-                    .site-search
-                        input#search(type="text" placeholder="Search...")
+        include header.pug
         main
             .wrap
                 .leftBox
-                    each item in postListMeta
-                        article
-                            .article-box
-                                .card-thumb
-                                    img(src="images/1.jpg" alt="thumb")
-                                h2.article-title #[a(href='/article')=item.title] 
-                                p.article-describe!=item.profile 
-                            .article-footer 
-                                span #{item.date}  
-                                //- span 11.15k 次阅读  
-                                //- span 0 条评论  
-                                //- span 3.58k 人点赞 
-                                .readMove 阅读全文
-                    
-                    #page-nav 
-                        ul
-                            li #[a(href="#") 1]
-                            li #[a(href="#") 2]
-                            li #[a(href="#") 3]
-                            li #[a(href="#") 4]
-                            li #[a(href="#") >]
-                            li #[a(href="#") »]
-                .rightBox
-                    aside.aboutMe
-                        .photo-background
-                        .avatar
-                            img(src=options.themeOptions.avatar alt="头像")
-                        .notes #{options.themeOptions.description}
-                        .statistics
-                            ul
-                                li
-                                    .count #{postListMeta.length}
-                                    .type 文章
-                                li
-                                    .count 0
-                                    .type 朋友
-                                li
-                                    .count 0
-                                    .type 评论
-                        .contact
-                            ul
-                                li #[img(src="images/QQ.png")] QQ
-                                li #[img(src="images/weixin.png")] 微信
-                                li #[img(src="images/weibo.png")] #[a(href=`${options.contact.weibo}`  target="_blank" ) 微博] 
-                                li #[img(src="images/github3.png")] #[a(href=`${options.contact.github}` target="_blank") github] 
-                    aside.tags
-                        .title 标签云
-                        .box
-                            ul 
-                                each item in tags
-                                    li= item
-        footer
-            #block #{options.themeOptions.ICP}  ·  总用时:  #{loadTime}
-           
-            #copyright #{options.themeOptions.copyright} · Powered by #[a(href="https://nodejs.org/en/") NodeJS] · Theme #[a(href="https://github.com/huzikai0424/Blog") Absorbed]
-        script(scr="/dist/index.js")
+                    include articleBox.pug
+                    include page-nav.pug
+                include sidebar.pug
+        
+        include footer.pug
+        //- script(src="/dist/index.js")
+        

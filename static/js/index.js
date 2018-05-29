@@ -6,7 +6,7 @@ const Comment = require('./comment/index')
 
 
 ReactDOM.render(
-    <Comment />,
+    <Comment data={data}/>,
     document.getElementById('comment')
 )
 

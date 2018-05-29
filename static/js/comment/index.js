@@ -19,11 +19,12 @@ module.exports = class Comment extends Component{
     }
     
     componentDidMount() {
-        axios.get('/getCommentList').then((data)=>{
-            this.setState({
-                comments:data.data
-            })
-        })
+        // axios.get('/getCommentList').then((data)=>{
+        //     this.setState({
+        //         comments:data.data
+        //     })
+        // })
+        console.log(this.props.data)
     }
     
     submitComment(){
@@ -65,10 +66,11 @@ module.exports = class Comment extends Component{
         })
     }
     render(){
-       let result = this.state.comments.map((obj,index)=>{
+        let result = this.props.data.map((obj,index)=>{
+            
             let Md5email = require('crypto').createHash('md5').update(obj.email).digest('hex')
             return(
-            <li className="comment-main" key={index} data-commentId={obj._id}>
+            <li className="comment-main" key={index} data-commentId={obj.id}>
                 <div className="author-info">
                     <img src={`//secure.gravatar.com/avatar/${Md5email}?s=100`}/>
                     <p><a href={obj.website} target="_blank">{obj.nickname}</a><span>chrome win10</span></p>
@@ -77,7 +79,7 @@ module.exports = class Comment extends Component{
                     <div className="comment-body">
                     {obj.detail}
                 </div>
-                    <button class="reply" onClick={() => this.reply(obj._id, obj.nickname)}>回复</button>
+                    <button class="reply" onClick={() => this.reply(obj.id, obj.nickname)}>回复</button>
             </li>)
        })
             
@@ -93,7 +95,7 @@ module.exports = class Comment extends Component{
                     <input id="website" placeholder="网站 (选填)" type="text" onChange={this.changeEvent} value={this.state.website} />
                     <button id="submit" onClick={this.submitComment}>发表评论</button>
                 </div>
-                <h3><span>{this.state.comments.length ? `共 ${this.state.comments.length} 条评论`:"暂无评论"}</span></h3>
+                <h3><span>{this.props.data.length ? `共 ${this.props.data.length} 条评论`:"暂无评论"}</span></h3>
                 <div id="commentBox">
                     <ul class="commentList">
                         {result}
