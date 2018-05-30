@@ -15,8 +15,16 @@ const connection = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'blog'
+    database: 'blog',
+    multipleStatements:true
 })
+function formatTime(time) {
+    let date = new Date(time)
+    let year = date.getFullYear()
+    let month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1
+    let day = date.getDate()
+    return `${year}年${month}月${day}日`
+}
 router.get('/article', async (ctx) => {
     let data = fs.readFileSync('./article/javascript/函数节流和函数防抖.md').toString()
     let meta = fm(data)
@@ -27,23 +35,40 @@ router.get('/article', async (ctx) => {
     })
 })
 router.get('/article/:id', async(ctx) => {
+    let startTime = new Date().getTime()
     const id = ctx.params.id
+    const page = ctx.query.page ? ctx.query.page : 1
+    const pageSize = options.article.pageSize ? options.article.pageSize : 10
     //let posts = ""
     function getArticle(id){
         return axios.get(`http://localhost:1234/getArticle?id=${id}`)
     }
-    function getCommentList(id){
-        return axios.get(`http://localhost:1234/getCommentList/${id}`)
+    function getCommentList(id,page,pageSize){
+        return axios.get(`http://localhost:1234/getCommentList/${id}?page=${page}&pageSize=${pageSize}`)
     }
-    await axios.all([getArticle(id), getCommentList(id)]).then(axios.spread(async function(article, comment){
-        const data = article.data[0]
+    await axios.all([getArticle(id), getCommentList(id,page,pageSize)]).then(axios.spread(async function(article, comment){
+        let data = article.data[0]
+        let postTime = data.postTime
+        data.postTime = formatTime(postTime)
         const comments = comment.data
+        
         const posts = marked(data.posts)
+        let loadTime = new Date().getTime() - startTime
+        let sql = `update articles set views = views+1 where id = ${id}`
+        connection.query(sql, (err, result) => {
+            if (err) console.log(err)
+        })
+        let nextArtilce = await axios.get(`http://localhost:1234/getArticleNext/${postTime}`)
+        nextArtilce = nextArtilce.data
+        
         await ctx.render('article',{
             markdown:posts,
             comments:comments,
             data:data,
-            options: options
+            options: options,
+            loadTime: loadTime,
+            nextArtilce: nextArtilce,
+            id:id
         })
     })).catch((err)=>{
         ctx.response.status = 404
@@ -63,6 +88,18 @@ router.get('/article/:id', async(ctx) => {
     // })
     
     
+})
+router.get('/getArticleNext/:postTime',async(ctx)=>{
+    let postTime = ctx.params.postTime
+    let pre = `select id,title from articles where id = (select id from articles where postTime<${postTime} order by postTime desc limit 1)`
+    let next = `select id,title from articles where id = (select id from articles where postTime>${postTime} order by postTime desc limit 1) `
+    let res = await new Promise((resolve, reject) => {
+        connection.query(`${pre};${next}`, (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    })
+    ctx.body = res
 })
 
 router.get('/', async (ctx) => {
@@ -86,19 +123,27 @@ router.get('/', async (ctx) => {
         })
         item.postTime = formatTime(item.postTime)
     })
-    function formatTime(time){
-        let date = new Date(time)
-        let year = date.getFullYear()
-        let month = date.getMonth() + 1 < 10 ? `0${date.getMonth()+1}` : date.getMonth()+1
-        let day = date.getDate()
-        return `${year}年${month}月${day}日`
-    }
     
-
+    let commentSql = "select article_id, count(*) as count from comments GROUP BY  article_id"
+    let commentCount = await new Promise((resolve, reject) => {
+        connection.query(commentSql, function (err, result) {
+            if (err) reject(err)
+            resolve(result)
+        })
+    })
+    let commentLength = 0
+    commentCount.forEach((item)=>{
+        commentLength+=item.count
+    })
+    //console.log(commentCount)
+    let loadTime = new Date().getTime()-startTime
     await ctx.render('index',{
         res:res,
         options: options,
-        tags: tagsArr
+        tags: tagsArr,
+        loadTime: loadTime,
+        commentCount: commentCount,
+        commentLength: commentLength
     })
     
 }) 
@@ -106,37 +151,42 @@ router.get('/', async (ctx) => {
 router.post('/submitComment', koaBody(), async(ctx)=>{
     const userAgent = ctx.req.headers['user-agent']
     const postData=ctx.request.body.data
-    let addSQL ='insert into comments(pid,nickname,email,website,ua,detail,qq,timestamp) values (0,?,?,?,?,?,?,NOW())';
-    let data = [postData.nickname, postData.email, postData.website, userAgent, postData.comment,postData.qq]
+    const id = ctx.request.body.id
+    let addSQL ='insert into comments(article_id,pid,nickname,email,website,ua,detail,qq,timestamp) values (?,0,?,?,?,?,?,?,NOW())';
+    let data = [id,postData.nickname, postData.email, postData.website, userAgent, postData.comment,postData.qq]
     
-    // return new Promise((resolve, reject) => {
-    //     connection.query(addSQL, data,function (err,result) {
-    //         if(err){
-    //             reject(
-    //                 ctx.body = {
-    //                 success: false,
-    //                 err: err
-    //             })
-    //             return;
-    //         }
-    //         resolve(ctx.body = {
-    //             success: true
-    //         })
-    //     })
-    // })
+    let res = await new Promise((resolve, reject) => {
+        connection.query(addSQL, data,function (err,result) {
+            if(err) reject(err)
+            resolve(result)
+        })
+    })
+    ctx.body = res
+    console.log(res)
 })
 router.get('/getCommentList/:id',async(ctx)=>{
     const id = ctx.params.id
     const desc = options.comment.desc ? "desc" : "asc"
     const orderBy = options.comment.orderBy
-    const sql=`select * from comments where article_id = ${id}`;
+    const page = ctx.query.page ? ctx.query.page : 1
+    const pageSize = options.comment.pageSize ? options.comment.pageSize : 10
+    const pageIndex = (page - 1) * pageSize
+
+    const sql = `select * from comments where article_id = ${id} ORDER BY ${orderBy} ${desc} limit ${pageIndex},${pageSize} `;
+    const sql2 = `select count(*) as total from comments where article_id = ${ id }`
     let res = await new Promise((resolve,reject)=>{
-        connection.query(sql,(err,result)=>{
+        connection.query(`${sql};${sql2}`,(err,result)=>{
             if (err) reject(err)
             resolve(result)
         })
     })
-    ctx.body = res
+    let data = {
+        data:res[0],
+        page:page,
+        pageSize:pageSize,
+        total:res[1][0].total
+    }
+    ctx.body = data
 })
 router.get('/getArticle',async (ctx)=>{
     const id = ctx.query.id
@@ -231,6 +281,20 @@ router.get('/update', async(ctx) => {
             ctx.body = result
             resolve(result)
         })
+    })
+})
+
+router.get('/tags/:tags', async (ctx) => {
+    let tags = ctx.params.tags
+    let sql = `select * from articles where tags like '%${tags}%'`
+    let res = await new Promise((resolve, reject) => {
+        connection.query(sql, function (err, result) {
+            if (err) reject(err)
+            resolve(result)
+        })
+    })
+    await ctx.render('tags',{
+        data:res
     })
 })
 module.exports = router

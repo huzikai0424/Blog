@@ -11,6 +11,7 @@ html
                         .article-box
                             .article-title  
                                 h1 #{data.title}
+                            .article-info 发表于 #{data.postTime} #{data.views}次浏览
                             .markdown-body !{markdown}
                     article
                         .article-box
@@ -20,8 +21,11 @@ html
                     article
                         .article-box
                             .next_article
-                                a.prev(href="#") <<我是上一篇
-                                a.next(href="#") 我是下一篇>>
+                                
+                                if nextArtilce[0].length
+                                    a.prev(href=`${nextArtilce[0][0].id}`) << #{nextArtilce[0][0].title} 
+                                if nextArtilce[1].length
+                                    a.next(href=`${nextArtilce[1][0].id}`) #{nextArtilce[1][0].title} >>
                     article
                         .article-box
                             #comment
@@ -73,6 +77,9 @@ html
                                 li 碎碎念
         include footer.pug
         script.
-            var data = !{JSON.stringify(comments)};
+            var result ={
+                data:!{JSON.stringify(comments)},
+                id:!{id}
+            }
         script(src="../index.js")
         //- //script(src="/dist/index.js")

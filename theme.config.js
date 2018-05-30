@@ -50,7 +50,7 @@ module.exports ={
         pageSize:10
     },
     comment:{
-        orderBy: "postTime",
+        orderBy: "timestamp",
         desc: true,
         pageSize: 10
     }

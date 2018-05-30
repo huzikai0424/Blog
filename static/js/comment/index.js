@@ -8,38 +8,73 @@ module.exports = class Comment extends Component{
         this.changeEvent = this.changeEvent.bind(this)
         this.formatTime = this.formatTime.bind(this)
         this.reply = this.reply.bind(this)
+        this.getCommentList = this.getCommentList.bind(this)
         this.state = {
             comment:"",
             nickname:"",
             email:"",
             website:"" ,
             comments:[],
-            placeholder:"留下来说几句吧..."
+            placeholder:"留下来说几句吧...",
+            currentPage:Number(this.props.data.data.page),
+            commentList: this.props.data.data.data
         };
     }
     
     componentDidMount() {
+        let commentsInfo = JSON.parse(localStorage.getItem('commentInfo'))
+        let email = commentsInfo.email
+        let nickname = commentsInfo.nickname
+        let website = commentsInfo.website
+        if (commentsInfo){
+            this.setState({email,nickname,website})
+        }
+        console.log(this.props.data)
         // axios.get('/getCommentList').then((data)=>{
         //     this.setState({
         //         comments:data.data
         //     })
         // })
-        console.log(this.props.data)
+        //console.log(this.props.data.data)
     }
-    
+    getCommentList(page,pageSize){
+        const id = this.props.data.id
+        const that = this
+        axios.get(`/getCommentList/${id}?page=${page}&pageSize=${pageSize}`)
+        .then(function (response) {
+            if (response.statusText == "OK") {
+                that.setState({
+                    commentList: response.data.data,
+                    currentPage: Number(response.data.page)
+                })
+            } else {
+                console.log(`错误${response.data.message}`)
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+    }
     submitComment(){
         console.log(this.state)
+        const data = this.state
         axios.post('/submitComment', {
-            data:this.state
+            data: data,
+            id:this.props.data.id
         })
         .then(function (response) {
-            if(response.data.success){
-                console.log(response);
+            if (response.data.affectedRows && response.statusText=="OK"){
+                let commentsInfo = {
+                    email:data.email,
+                    nickname:data.nickname,
+                    website:data.website
+                }
+                commentsInfo = JSON.stringify(commentsInfo)
+                localStorage.setItem("commentInfo", commentsInfo)
                 location.reload()
             }else{
-                console.log(`错误${response.data.err}`)
+                console.log(`错误${response.data.message}`)
             }
-           
         })
         .catch(function (error) {
             console.log(error);
@@ -66,7 +101,7 @@ module.exports = class Comment extends Component{
         })
     }
     render(){
-        let result = this.props.data.map((obj,index)=>{
+        let result = this.state.commentList.map((obj,index)=>{
             
             let Md5email = require('crypto').createHash('md5').update(obj.email).digest('hex')
             return(
@@ -81,9 +116,34 @@ module.exports = class Comment extends Component{
                 </div>
                     <button class="reply" onClick={() => this.reply(obj.id, obj.nickname)}>回复</button>
             </li>)
-       })
-            
-        
+        })
+        let totalPage = Math.ceil(this.props.data.data.total / this.props.data.data.pageSize)
+        let div = []
+        for(let i = 1 ; i<= totalPage; i++){
+            if (this.state.currentPage == i){
+                div.push(<li className="active" onClick={()=>this.getCommentList(i,10)}>{i}</li>)
+            }else{
+                div.push(<li onClick={() => this.getCommentList(i, 10)}>{i}</li>)
+            }
+        }
+        const nav = div.map((item)=>{
+            return item
+        })
+
+       
+
+        // let pageNav = function(){
+        //     let div = []
+        //     for(let i = 1 ; i<= totalPage; i++){
+        //         if (this.state.currentPage == i){
+        //             div.push(<li className="active">i</li>)
+        //         }else{
+        //             div.push(<li>i</li>)
+        //         }
+        //     }
+        //     return div
+        // }
+        // let nav = pageNav().map((obj,index)=>obj)
         return(
             <div>
                 <h2>发表评论</h2>
@@ -95,10 +155,13 @@ module.exports = class Comment extends Component{
                     <input id="website" placeholder="网站 (选填)" type="text" onChange={this.changeEvent} value={this.state.website} />
                     <button id="submit" onClick={this.submitComment}>发表评论</button>
                 </div>
-                <h3><span>{this.props.data.length ? `共 ${this.props.data.length} 条评论`:"暂无评论"}</span></h3>
+                <h3><span>{this.props.data.data.total ? `共 ${this.props.data.data.total} 条评论`:"暂无评论"}</span></h3>
                 <div id="commentBox">
-                    <ul class="commentList">
+                    <ul className="commentList">
                         {result}
+                    </ul>
+                    <ul className="page-nav-commment">
+                        {nav}
                     </ul>
                 </div>
             </div>
