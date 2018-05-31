@@ -11,6 +11,7 @@ const glob = require('glob')
 const { join } = require('path')
 const options = require('../../theme.config')
 const axios = require('axios')
+const commonJs = require('./common')
 const connection = mysql.createPool({
     host: 'localhost',
     user: 'root',
@@ -18,13 +19,7 @@ const connection = mysql.createPool({
     database: 'blog',
     multipleStatements:true
 })
-function formatTime(time) {
-    let date = new Date(time)
-    let year = date.getFullYear()
-    let month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1
-    let day = date.getDate()
-    return `${year}年${month}月${day}日`
-}
+
 router.get('/article', async (ctx) => {
     let data = fs.readFileSync('./article/javascript/函数节流和函数防抖.md').toString()
     let meta = fm(data)
@@ -49,7 +44,7 @@ router.get('/article/:id', async(ctx) => {
     await axios.all([getArticle(id), getCommentList(id,page,pageSize)]).then(axios.spread(async function(article, comment){
         let data = article.data[0]
         let postTime = data.postTime
-        data.postTime = formatTime(postTime)
+        data.postTime = commonJs.formatTime(postTime)
         const comments = comment.data
         
         const posts = marked(data.posts)
@@ -116,34 +111,31 @@ router.get('/', async (ctx) => {
     })
     let tagsArr=[]
     res.forEach((item,index)=>{
-        item.tags.split("/").forEach((item,index)=>{
-            if (tagsArr.indexOf(item)==-1&&item){
-                tagsArr.push(item)
-            }
-        })
-        item.postTime = formatTime(item.postTime)
+        item.postTime = commonJs.formatTime(item.postTime)
     })
-    
+    /**
+     *@commentCount：评论数量
+     */
     let commentSql = "select article_id, count(*) as count from comments GROUP BY  article_id"
-    let commentCount = await new Promise((resolve, reject) => {
+    let commentCountInfo = await new Promise((resolve, reject) => {
         connection.query(commentSql, function (err, result) {
             if (err) reject(err)
             resolve(result)
         })
     })
-    let commentLength = 0
-    commentCount.forEach((item)=>{
-        commentLength+=item.count
-    })
-    //console.log(commentCount)
-    let loadTime = new Date().getTime()-startTime
+    /**
+     * 侧边栏数据信息
+     */
+    let sideBarData = await axios.get(`http://localhost:1234/getSidebarInfo`)
+    if (sideBarData.statusText=="OK")
+        sideBarData = sideBarData.data
     await ctx.render('index',{
         res:res,
         options: options,
         tags: tagsArr,
-        loadTime: loadTime,
-        commentCount: commentCount,
-        commentLength: commentLength
+        loadTime: new Date().getTime() - startTime,
+        commentCountInfo: commentCountInfo,
+        sideBarData: sideBarData
     })
     
 }) 
@@ -293,8 +285,55 @@ router.get('/tags/:tags', async (ctx) => {
             resolve(result)
         })
     })
-    await ctx.render('tags',{
-        data:res
+    res.forEach((item, index) => {
+        item.postTime = commonJs.formatTime(item.postTime)
     })
+
+    let commentSql = "select article_id, count(*) as count from comments GROUP BY  article_id"
+    let commentCountInfo = await new Promise((resolve, reject) => {
+        connection.query(commentSql, function (err, result) {
+            if (err) reject(err)
+            resolve(result)
+        })
+    })
+    let sideBarData = await axios.get(`http://localhost:1234/getSidebarInfo`)
+    if (sideBarData.statusText == "OK")
+        sideBarData = sideBarData.data
+
+    
+
+    await ctx.render('tags',{
+        res:res,
+        commentCountInfo: commentCountInfo,
+        tagsName:tags,
+        options: options,
+        sideBarData: sideBarData
+    })
+})
+
+router.get('/getSidebarInfo',async(ctx)=>{
+    let sql = 'select count(*) as total from articles union ALL select count(*) from comments '
+    let sql2 = 'select tags from articles'
+    let res = await new Promise((resolve, reject) => {
+        connection.query(`${sql};${sql2}`, (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    })
+    let tags=[]
+    res[1].forEach((item)=>{
+        item.tags.split('/').forEach((item)=>{
+            if(tags.indexOf(item)==-1){
+                tags.push(item)
+            }
+        })
+    })
+    let data={
+        totalArticle:res[0][0].total,
+        totalComment:res[0][1].total,
+        tags: tags
+    }
+    
+    ctx.body = data
 })
 module.exports = router

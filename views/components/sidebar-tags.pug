@@ -1,0 +1,6 @@
+aside.tags
+    .title 标签云
+    .box
+        ul 
+            each item in sideBarData.tags
+                li #[a(href=`/tags/${item}`) #{item}]
