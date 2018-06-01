@@ -28,7 +28,7 @@ module.exports ={
         icon:"https://cherryml.com/wp-content/uploads/2017/07/favicon.png"
     },
     themeOptions:{
-        avatar:"images/avatar.jpg",   
+        avatar:"/images/avatar.jpg",   
         nickname:"柠檬酸",    
         description:"最强咸鱼...",
         ICP:"浙ICP备16046701号",

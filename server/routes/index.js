@@ -336,4 +336,38 @@ router.get('/getSidebarInfo',async(ctx)=>{
     
     ctx.body = data
 })
+router.get('/search/:search',async(ctx)=>{
+    let search = ctx.params.search
+    let sql = `select * from articles where tags like '%${search}%' or posts like '%${search}%' or title like '%${search}%'`
+    let res = await new Promise((resolve, reject) => {
+        connection.query(sql, function (err, result) {
+            if (err) reject(err)
+            resolve(result)
+        })
+    })
+    res.forEach((item, index) => {
+        item.postTime = commonJs.formatTime(item.postTime)
+    })
+
+    let commentSql = "select article_id, count(*) as count from comments GROUP BY  article_id"
+    let commentCountInfo = await new Promise((resolve, reject) => {
+        connection.query(commentSql, function (err, result) {
+            if (err) reject(err)
+            resolve(result)
+        })
+    })
+    let sideBarData = await axios.get(`http://localhost:1234/getSidebarInfo`)
+    if (sideBarData.statusText == "OK")
+        sideBarData = sideBarData.data
+
+
+
+    await ctx.render('search', {
+        res: res,
+        commentCountInfo: commentCountInfo,
+        searchName: search,
+        options: options,
+        sideBarData: sideBarData
+    })
+})
 module.exports = router

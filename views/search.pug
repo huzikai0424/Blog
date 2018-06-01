@@ -1,0 +1,15 @@
+doctype html
+html
+    head
+        include components/meta.pug
+    body
+        include components/header.pug
+        main
+            .wrap
+                .leftBox
+                    .site-box #[strong #{searchName}] 的搜索结果
+                    include components/articleBox.pug
+                    //- include components/page-nav.pug
+                include components/sidebar.pug
+        
+        include components/footer.pug
