@@ -21,7 +21,7 @@
 
 module.exports ={
     seo:{
-        title:"痴情的小五",
+        title:"痴五",
         subtitle:"记录生活，分享感动。",
         keywords:"个人博客,生活,记录,代码",
         description:"记录生活，分享感动。",

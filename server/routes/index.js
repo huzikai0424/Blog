@@ -19,15 +19,17 @@ const connection = mysql.createPool({
     database: 'blog',
     multipleStatements:true
 })
-
+const getDate = require('../database/mysql') 
 router.get('/article', async (ctx) => {
-    let data = fs.readFileSync('./article/javascript/函数节流和函数防抖.md').toString()
-    let meta = fm(data)
-    let content = marked(meta.body)
-    console.log(meta)
-    await ctx.render('article', {
-        markdown: content
-    })
+    // let data = fs.readFileSync('./article/javascript/函数节流和函数防抖.md').toString()
+    // let meta = fm(data)
+    // let content = marked(meta.body)
+    // console.log(meta)
+    // await ctx.render('article', {
+    //     markdown: content
+    // })
+    let data = await getDate.selectAll()
+    console.log(data)
 })
 router.get('/article/:id', async(ctx) => {
     let startTime = new Date().getTime()
@@ -88,13 +90,19 @@ router.get('/getArticleNext/:postTime',async(ctx)=>{
     let postTime = ctx.params.postTime
     let pre = `select id,title from articles where id = (select id from articles where postTime<${postTime} order by postTime desc limit 1)`
     let next = `select id,title from articles where id = (select id from articles where postTime>${postTime} order by postTime desc limit 1) `
-    let res = await new Promise((resolve, reject) => {
-        connection.query(`${pre};${next}`, (err, result) => {
-            if (err) reject(err)
-            resolve(result)
+    
+    try {
+        let res = await new Promise((resolve, reject) => {
+            connection.query(`${pre};${next}`, (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
         })
-    })
-    ctx.body = res
+        ctx.body = res
+    } catch (error) {
+        ctx.body = 404
+    }
+    
 })
 
 router.get('/', async (ctx) => {
