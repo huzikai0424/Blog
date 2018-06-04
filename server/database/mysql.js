@@ -1,4 +1,6 @@
 const mysql = require('mysql')
+const config = require('../../theme.config')
+
 const connection = mysql.createPool({
     host: 'localhost',
     user: 'root',
@@ -14,8 +16,87 @@ let query = (sql,data)=>{
         })
     })
 }
+/**
+ * 获取文章列表
+ */
+exports.getArticleList = (orderBy,desc,page=0,pageSize=10)=>{
+    const sql = `select * from articles ORDER BY ${orderBy} ${desc} limit ${page},${pageSize}`
+    return query(sql)
+}
+/**
+ * 获取某ID下的文章
+ */
+exports.getArticleById = (id)=>{
+    const sql = `select * from articles where id = ${id}`
+    return query(sql)
+}
+/**
+ * 获取评论数量
+ */
+exports.getCommentCount=()=>{
+    const sql ="select article_id, count(*) as count from comments GROUP BY article_id"
+    return query(sql)
+}
+/**
+ * 获取侧边栏信息
+ */
+exports.getSidebarInfo=()=>{
+    let sql = 'select count(*) as total from articles union ALL select count(*) from comments '
+    let sql2 = 'select tags from articles'
+    let querySql = `${sql};${sql2}`
+    return query(querySql)
+}
 
-exports.selectAll = ()=>{
-    let sql = `select * from articles`
+/**
+ * 获取搜索的文章
+ */
+exports.getSearchData = (search)=>{
+    let sql = `select * from articles where tags like '%${search}%' or posts like '%${search}%' or title like '%${search}%'`
+    return query(sql)
+}
+/**
+ * 获取某分类下的文章
+ */
+exports.getTagsArtielc = (tags)=>{
+    let sql = `select * from articles where tags like '%${tags}%'`
+    return query(sql)
+}
+/**
+ * 插入文章
+ */
+exports.addArticle = (data)=>{
+    let sql =`INSERT INTO articles(title,des,posts,tags,postTime) VALUES ?`
+    return query(sql,data)
+}
+/**
+ * 获得某文章下的评论列表和总条数
+ */
+exports.getCommentListById = (id, pageIndex = 0, pageSize = config.comment.pageSize, orderBy = config.comment.orderBy, desc = config.comment.desc ? "desc" : "asc")=>{
+    const sql = `select * from comments where article_id = ${id} ORDER BY ${orderBy} ${desc} limit ${pageIndex},${pageSize} `;
+    const sql2 = `select count(*) as total from comments where article_id = ${id}`
+    const querySql = `${sql};${sql2}`
+    return query(querySql)
+}
+/**
+ * 插入评论
+ */
+exports.submitComment = (data)=>{
+    let addsql = `insert into comments(article_id,pid,nickname,email,website,ua,detail,qq,timestamp) values (?,0,?,?,?,?,?,?,NOW())`;
+    return query(addsql,data)
+}
+/**
+ * 获取上一篇和下一篇文章信息
+ */
+exports.getArticleNext = (postTime)=>{
+    let pre = `select id,title from articles where id = (select id from articles where postTime<${postTime} order by postTime desc limit 1)`
+    let next = `select id,title from articles where id = (select id from articles where postTime>${postTime} order by postTime desc limit 1) `
+    let querySql = `${pre};${next}`
+    return query(querySql)
+}
+/**
+ * Pv+1
+ */
+exports.pvAddOne = (id)=>{
+    let sql = `update articles set views = views+1 where id = ${id}`
     return query(sql)
 }

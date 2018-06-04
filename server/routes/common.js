@@ -12,6 +12,9 @@ module.exports={
         let month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1
         let day = date.getDate()
         return `${year}年${month}月${day}日`
+    },
+    delHtmlTag:function(str) {
+        return str.replace(/<[^>]+>/g, "");//去掉所有的html标记
     }
 
 }

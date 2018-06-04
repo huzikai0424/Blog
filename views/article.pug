@@ -23,10 +23,10 @@ html
                         .article-box
                             .next_article
                                 
-                                if nextArtilce[0].length
-                                    a.prev(href=`${nextArtilce[0][0].id}`) << #{nextArtilce[0][0].title} 
-                                if nextArtilce[1].length
-                                    a.next(href=`${nextArtilce[1][0].id}`) #{nextArtilce[1][0].title} >>
+                                if preArticle
+                                    a.prev(href=`${preArticle.id}`) << #{preArticle.title} 
+                                if nextArtilce
+                                    a.next(href=`${nextArtilce.id}`) #{nextArtilce.title} >>
                     article
                         .article-box
                             #comment
@@ -60,6 +60,7 @@ html
         script.
             var result ={
                 data:!{JSON.stringify(comments)},
+                pageSize:!{pageSize},
                 id:!{id}
             }
         script(src="/js/libs/jquery-1.11.1.min.js")

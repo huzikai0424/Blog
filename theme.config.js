@@ -16,12 +16,13 @@
  * 
  * orderBy:文章排序
  * desc:是否降序
+ * pageSize:分页大小
  */
 
 
 module.exports ={
     seo:{
-        title:"痴五",
+        title:"柠檬酸的情感小阁",
         subtitle:"记录生活，分享感动。",
         keywords:"个人博客,生活,记录,代码",
         description:"记录生活，分享感动。",
@@ -32,7 +33,7 @@ module.exports ={
         nickname:"柠檬酸",    
         description:"最强咸鱼...",
         ICP:"浙ICP备16046701号",
-        copyright:"© 2018 痴情的小五 "
+        copyright:"© 2018 柠檬酸"
     },
     personalOptions:{
         blogAge:"2018/09/24",

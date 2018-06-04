@@ -1,8 +1,8 @@
 aside.aboutMe
     .photo-background
     .avatar
-        img(src=options.themeOptions.avatar alt="头像")
-    .notes #{options.themeOptions.description}
+        img(src=config.themeOptions.avatar alt="头像")
+    .notes #{config.themeOptions.description}
     .statistics
         ul
             li
@@ -18,5 +18,5 @@ aside.aboutMe
         ul
             li #[img(src="/images/QQ.png")] QQ
             li #[img(src="/images/weixin.png")] 微信
-            li #[img(src="/images/weibo.png")] #[a(href=`${options.contact.weibo}`  target="_blank" ) 微博] 
-            li #[img(src="/images/github3.png")] #[a(href=`${options.contact.github}` target="_blank") github] 
+            li #[img(src="/images/weibo.png")] #[a(href=`${config.contact.weibo}`  target="_blank" ) 微博] 
+            li #[img(src="/images/github3.png")] #[a(href=`${config.contact.github}` target="_blank") github] 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios'
-
+const parser = require('ua-parser-js')
 module.exports = class Comment extends Component{
     constructor(props) {
         super(props);
@@ -16,20 +16,21 @@ module.exports = class Comment extends Component{
             website:"" ,
             comments:[],
             placeholder:"留下来说几句吧...",
-            currentPage:Number(this.props.data.data.page),
-            commentList: this.props.data.data.data
+            currentPage:1,
+            commentList: this.props.data.data.commentList
         };
     }
     
     componentDidMount() {
         let commentsInfo = JSON.parse(localStorage.getItem('commentInfo'))
-        let email = commentsInfo.email
-        let nickname = commentsInfo.nickname
-        let website = commentsInfo.website
         if (commentsInfo){
+            let email = commentsInfo.email
+            let nickname = commentsInfo.nickname
+            let website = commentsInfo.website
             this.setState({email,nickname,website})
         }
         console.log(this.props.data)
+        // getCommentList()
         // axios.get('/getCommentList').then((data)=>{
         //     this.setState({
         //         comments:data.data
@@ -40,6 +41,9 @@ module.exports = class Comment extends Component{
     getCommentList(page,pageSize){
         const id = this.props.data.id
         const that = this
+        if (this.state.currentPage==page){
+            return
+        }
         axios.get(`/getCommentList/${id}?page=${page}&pageSize=${pageSize}`)
         .then(function (response) {
             if (response.statusText == "OK") {
@@ -71,7 +75,10 @@ module.exports = class Comment extends Component{
                 }
                 commentsInfo = JSON.stringify(commentsInfo)
                 localStorage.setItem("commentInfo", commentsInfo)
-                location.reload()
+                if (parser(navigator.userAgent).browser.name == "WeChat") //fuck WeChat！ 
+                    window.location.href = location.href + '?time=' + ((new Date()).getTime());
+                else
+                    location.reload()
             }else{
                 console.log(`错误${response.data.message}`)
             }
@@ -104,11 +111,16 @@ module.exports = class Comment extends Component{
         let result = this.state.commentList.map((obj,index)=>{
             
             let Md5email = require('crypto').createHash('md5').update(obj.email).digest('hex')
+            let ua = parser(obj.ua)
             return(
             <li className="comment-main" key={index} data-commentId={obj.id}>
                 <div className="author-info">
                     <img src={`//secure.gravatar.com/avatar/${Md5email}?s=100`}/>
-                    <p><a href={obj.website} target="_blank">{obj.nickname}</a><span>chrome win10</span></p>
+                        <p>
+                            <a href={obj.website} target="_blank"><span className="ua author-name">{obj.nickname}</span></a>
+                            <span className="ua ua-browser">{`${ua.browser.name} ${ua.browser.major} `}</span>
+                            <span className="ua ua-os">{`${ua.os.name} ${ua.os.version}`}</span>
+                        </p>
                         <p className="comment-time">{this.formatTime(obj.timestamp)}</p>
                 </div>
                     <div className="comment-body">
@@ -117,7 +129,7 @@ module.exports = class Comment extends Component{
                     <button class="reply" onClick={() => this.reply(obj.id, obj.nickname)}>回复</button>
             </li>)
         })
-        let totalPage = Math.ceil(this.props.data.data.total / this.props.data.data.pageSize)
+        let totalPage = Math.ceil(this.props.data.data.total / this.props.data.pageSize)
         let div = []
         for(let i = 1 ; i<= totalPage; i++){
             if (this.state.currentPage == i){
@@ -129,21 +141,7 @@ module.exports = class Comment extends Component{
         const nav = div.map((item)=>{
             return item
         })
-
-       
-
-        // let pageNav = function(){
-        //     let div = []
-        //     for(let i = 1 ; i<= totalPage; i++){
-        //         if (this.state.currentPage == i){
-        //             div.push(<li className="active">i</li>)
-        //         }else{
-        //             div.push(<li>i</li>)
-        //         }
-        //     }
-        //     return div
-        // }
-        // let nav = pageNav().map((obj,index)=>obj)
+        
         return(
             <div>
                 <h2>发表评论</h2>
