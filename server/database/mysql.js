@@ -62,10 +62,10 @@ exports.getTagsArtielc = (tags)=>{
     return query(sql)
 }
 /**
- * 插入文章
+ * 插入或者更新文章
  */
 exports.addArticle = (data)=>{
-    let sql =`INSERT INTO articles(title,des,posts,tags,postTime) VALUES ?`
+    let sql =`INSERT INTO articles(title,des,posts,tags,postTime) VALUES ? ON DUPLICATE KEY UPDATE title=?,des=?,posts=?,tags=?,postTime=?`
     return query(sql,data)
 }
 /**

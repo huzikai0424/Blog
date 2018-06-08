@@ -149,8 +149,10 @@ router.get('/update', async(ctx) => {
         ]
         arr.push(arrFormat)
     })
-    
+    // ctx.body=arr
+    // console.log(arr)
     let res = await mysql.addArticle([arr])
+    ctx.body = res 
 })
 
 router.get('/tags/:tags', async (ctx) => {
@@ -217,5 +219,8 @@ router.get('/search/:search',async(ctx)=>{
         config: config,
         sideBarData: sideBarData
     })
+})
+router.get('/admin',async(ctx)=>{
+    await ctx.render('admin/index')
 })
 module.exports = router

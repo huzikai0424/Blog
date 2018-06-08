@@ -1,7 +1,4 @@
-// import { Mongoose } from 'mongoose'
-
 const Koa=require('koa')
-const mongoose = require('mongoose')
 const views = require('koa-views')
 const serve=require('koa-static')
 const {resolve}=require('path')

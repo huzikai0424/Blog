@@ -1,9 +1,14 @@
+const path = require('path');
 module.exports={
     devtool: 'eval-source-map',
-    entry:__dirname+"/static/js/index.js",
+    entry:{
+        "comment":[path.join(__dirname,"/static/js/index.js")],
+        "admin":[path.join(__dirname,"/static/js/admin/index.js")]
+    },
     output:{
-        path:__dirname+'/static',
-        filename:'index.js'
+        path: path.resolve(__dirname,'static'),
+        filename:'dist/[name].js',
+        publicPath: '/'
     },
     module:{
         rules:[
@@ -18,6 +23,20 @@ module.exports={
                     'style-loader',
                     { loader: 'css-loader', options: { importLoaders: 1 } },
                     'less-loader'
+                ]
+            },
+            {
+                test: /\.(svg|png|wav|gif|jpg)$/,
+                use: { loader: 'file-loader'}
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    {
+                        loader: "style-loader"
+                    }, {
+                        loader: "css-loader"
+                    }
                 ]
             }
         ]
