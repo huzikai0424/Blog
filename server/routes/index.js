@@ -220,7 +220,26 @@ router.get('/search/:search',async(ctx)=>{
         sideBarData: sideBarData
     })
 })
-router.get('/admin',async(ctx)=>{
+router.get('/getCommentList',async(ctx)=>{
+    let page = ctx.query.page ? ctx.query.page:1
+    let pageSize = ctx.query.pageSize ? ctx.query.pageSize :10
+    let res = await mysql.getCommentList(page,pageSize)
+    let obj = {
+        data:res[0],
+        page:page,
+        pageSize:pageSize,
+        total:res[1][0].total
+    }
+    ctx.body = obj
+    
+})
+router.get('/admin', async (ctx) => {
     await ctx.render('admin/index')
 })
+router.get('/admin/*',async(ctx)=>{
+    await ctx.render('admin/index')
+})
+// router.get('*', async (ctx, next) => {
+//     await ctx.render('admin/index')
+// })
 module.exports = router

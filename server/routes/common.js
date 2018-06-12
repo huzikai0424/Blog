@@ -13,6 +13,16 @@ module.exports={
         let day = date.getDate()
         return `${year}年${month}月${day}日`
     },
+    formatTimeToDay:function(time){
+        let date = new Date(time)
+        let year = date.getFullYear()
+        let month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1
+        let day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()
+        let hour = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours()
+        let minite = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes()
+        let second = date.getSeconds() < 10 ? `0${date.getSeconds()}` : date.getSeconds()
+        return `${year}-${month}-${day}  ${hour}:${minite}:${second}`
+    },
     delHtmlTag:function(str) {
         return str.replace(/<[^>]+>/g, "");//去掉所有的html标记
     }

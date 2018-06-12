@@ -100,3 +100,13 @@ exports.pvAddOne = (id)=>{
     let sql = `update articles set views = views+1 where id = ${id}`
     return query(sql)
 }
+/**
+ * 获取所有评论
+ */
+exports.getCommentList = (page = 1, pagesize = config.comment.pageSize,orderBy = config.comment.orderBy, desc = config.comment.desc?"desc":"asc")=>{
+    let start = (page-1)*pagesize
+    let sql = `select a.id,a.nickname,a.detail,b.title,a.website,a.email,a.\`timestamp\`,a.article_id from comments a,articles b WHERE a.article_id=b.id ORDER By timestamp desc `
+    let sql2 = `select count(*) as total from comments`
+    let querySql = `${sql};${sql2}`
+    return query(querySql)
+}

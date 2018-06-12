@@ -2,8 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import "./index.css";
 import { Layout, Menu, Breadcrumb, Icon, Table, Divider } from 'antd';
+import { Route, Switch, Link } from 'react-router-dom';
 import 'antd/dist/antd.css'
-import comments from "./comments.json";
+
+import comment from "./comment";
+import article from "./article";
 const { Header, Content, Sider, Footer } = Layout;
 
 const { SubMenu } = Menu;
@@ -29,19 +32,17 @@ class App extends React.Component {
                     <div className="logo" />
                     <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
                         <Menu.Item key="1">
-                            <Icon type="pie-chart" />
-                            <span>Option 1</span>
+                            <Link to="/admin/comment"><Icon type="pie-chart" /><span>评论</span></Link>
                         </Menu.Item>
                         <Menu.Item key="2">
-                            <Icon type="desktop" />
-                            <span>Option 2</span>
+                            <Link to="/admin/article"><Icon type="desktop" /><span>文章</span></Link>
                         </Menu.Item>
                         <SubMenu
                             key="sub1"
                             title={<span><Icon type="user" /><span>User</span></span>}
                         >
-                            <Menu.Item key="3">Tom</Menu.Item>
-                            <Menu.Item key="4">Bill</Menu.Item>
+                            <Menu.Item key="3">评论</Menu.Item>
+                            <Menu.Item key="4">文章</Menu.Item>
                             <Menu.Item key="5">Alex</Menu.Item>
                         </SubMenu>
                         <SubMenu
@@ -70,18 +71,12 @@ class App extends React.Component {
                             <Breadcrumb.Item>User</Breadcrumb.Item>
                             <Breadcrumb.Item>Bill</Breadcrumb.Item>
                         </Breadcrumb>
-                        <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
-                            <Table
-                                dataSource={comments.data}
-                                columns={columns}
-                                bordered={true}
-                                rowKey="id"
-                            />
-
-
-
-
-                        </div>
+                        <Switch>
+                            
+                            <Route path="/admin/comment" component={comment} />
+                            <Route path="/admin/article" component={article} />
+                            
+                        </Switch>
                     </Content>
                     <Footer style={{ textAlign: 'center' }}>
                         Ant Design ©2016 Created by Ant UED
@@ -93,26 +88,6 @@ class App extends React.Component {
 }
 
 
-const columns = [{
-    title: '姓名',
-    dataIndex: 'nickname',
-    key: 'nickname',
-}, {
-    title: '邮箱',
-    dataIndex: 'email',
-    key: 'email',
-}, {
-    title: '网站',
-    dataIndex: 'website',
-    key: 'website',
-}, {
-    title: '评论时间',
-    dataIndex: 'timestamp',
-    key: 'timestamp',
-}, {
-    title: '详情',
-    dataIndex: 'detail',
-    key: 'detail',
-}];
+
 export default App;
 //ReactDOM.render(<App />, document.getElementById('root'));
