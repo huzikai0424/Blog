@@ -21,14 +21,18 @@ let query = (sql,data)=>{
  */
 exports.getArticleList = (orderBy,desc,page=0,pageSize=10)=>{
     const sql = `select * from articles ORDER BY ${orderBy} ${desc} limit ${page},${pageSize}`
-    return query(sql)
+    const sql2= `select count(*) as total from articles`
+    let querySql = `${sql};${sql2}`
+    return query(querySql)
 }
 /**
  * 获取某ID下的文章
  */
 exports.getArticleById = (id)=>{
     const sql = `select * from articles where id = ${id}`
-    return query(sql)
+    const sql2 = `select count(*) as commentCount from comments where article_id = ${id}`
+    const querySql = `${sql};${sql2}`
+    return query(querySql)
 }
 /**
  * 获取评论数量
@@ -109,4 +113,12 @@ exports.getCommentList = (page = 1, pagesize = config.comment.pageSize,orderBy =
     let sql2 = `select count(*) as total from comments`
     let querySql = `${sql};${sql2}`
     return query(querySql)
+}
+/**
+ * 删除评论
+ */
+exports.deleteComments = (arr) => {
+    let ids = arr.toString()
+    let sql = `delete from comments where id in (${ids})`
+    return query(sql)
 }

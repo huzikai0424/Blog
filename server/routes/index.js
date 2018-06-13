@@ -22,7 +22,7 @@ router.get('/', async (ctx) => {
     const pageSize = config.article.pageSize
     let res = await mysql.getArticleList(orderBy, desc, 0, pageSize)
     let tagsArr = []
-    res.forEach((item, index) => {
+    res[0].forEach((item) => {
         item.postTime = commonJs.formatTime(item.postTime)
     })
     //commentCount：评论数量
@@ -32,7 +32,7 @@ router.get('/', async (ctx) => {
     if (sideBarData.statusText == "OK")
         sideBarData = sideBarData.data
     await ctx.render('index', {
-        res: res,
+        res: res[0],
         config: config,
         tags: tagsArr,
         loadTime: new Date().getTime() - startTime,
@@ -45,10 +45,10 @@ router.get('/article/:id', async(ctx) => {
     let startTime = new Date().getTime()
     const id = Number(ctx.params.id)
     let articleDate = await mysql.getArticleById(id).then(async res=>{
-        nextArtilce = await mysql.getArticleNext(res[0].postTime)
-        res[0].postTime = commonJs.formatTime(res[0].postTime)
+        nextArtilce = await mysql.getArticleNext(res[0][0].postTime)
+        res[0][0].postTime = commonJs.formatTime(res[0][0].postTime)
         let data = {
-            data:res[0],
+            data:res[0][0],
             preArticle: nextArtilce[0]? nextArtilce[0][0]:"",
             nextArtilce: nextArtilce[1] ? nextArtilce[1][0]:""
         }
@@ -74,6 +74,19 @@ router.get('/article/:id', async(ctx) => {
         preArticle: articleDate.preArticle,
         id: id
     })
+})
+router.get('/getArticleList',async(ctx)=>{
+    const page = ctx.request.query.page ? ctx.request.query.page:1
+    const desc = config.article.desc ? "desc" : "asc"
+    const orderBy = config.article.orderBy
+    const pageSize = ctx.request.query.pageSize ? ctx.request.query.pageSize:config.article.pageSize
+    const start = (page-1)*pageSize
+    let res = await mysql.getArticleList(orderBy, desc, start, pageSize)
+    let obj={
+        data:res[0],
+        total:res[1][0].total
+    }
+    ctx.body = obj
 })
 router.post('/submitComment', koaBody(), async(ctx)=>{
     const userAgent = ctx.req.headers['user-agent']
@@ -232,6 +245,17 @@ router.get('/getCommentList',async(ctx)=>{
     }
     ctx.body = obj
     
+})
+router.post('/deleteComments', koaBody(),async(ctx)=>{
+    let postData = ctx.request.body.data
+    let res = await mysql.deleteComments(postData)
+    ctx.body = res 
+})
+router.get('/getArticle/:id',async(ctx)=>{
+    let id = ctx.params.id
+    let res = await mysql.getArticleById(id)
+    res[0][0].commentCount = res[1][0].commentCount
+    ctx.body= res[0][0]
 })
 router.get('/admin', async (ctx) => {
     await ctx.render('admin/index')

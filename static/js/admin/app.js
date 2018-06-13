@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import "./index.css";
 import { Layout, Menu, Breadcrumb, Icon, Table, Divider } from 'antd';
 import { Route, Switch, Link } from 'react-router-dom';
@@ -7,6 +6,7 @@ import 'antd/dist/antd.css'
 
 import comment from "./comment";
 import article from "./article";
+import editor from "./editor";
 const { Header, Content, Sider, Footer } = Layout;
 
 const { SubMenu } = Menu;
@@ -49,7 +49,7 @@ class App extends React.Component {
                             key="sub2"
                             title={<span><Icon type="team" /><span>Team</span></span>}
                         >
-                            <Menu.Item key="6">Team 1</Menu.Item>
+                            <Menu.Item key="6"><Link to="/admin/editor">MarkDown 编辑器</Link></Menu.Item>
                             <Menu.Item key="8">Team 2</Menu.Item>
                         </SubMenu>
                         <Menu.Item key="9">
@@ -75,6 +75,7 @@ class App extends React.Component {
                             
                             <Route path="/admin/comment" component={comment} />
                             <Route path="/admin/article" component={article} />
+                            <Route path="/admin/editor" component={editor} />
                             
                         </Switch>
                     </Content>

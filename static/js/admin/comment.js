@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Pagination } from 'antd';
+import { Table, Button, Popconfirm, message, Spin  } from 'antd';
 //import comments from "./comments.json";
 import "./index.css";
 import axios from "axios";
@@ -10,19 +10,61 @@ class Comment extends Component {
         
         this.state = {
             comments:[],
+            selectedRowKeys:[],
+            loading:false,
+            reload:false,
+            page:1,
+            pageSize:10,
             pagination:{
                 defaultCurrent:1,
                 total:1,
                 showTotal: (total, range) => `第${range[0]}-${range[1]}条 共 ${total} 条`,
-                onChange:(page,pagesize)=>{
-                    this.getCommentList(page,pagesize)
+                onChange: (page, pageSize)=>{
+                    this.setState({ page, pageSize })
+                    this.getCommentList(page, pageSize)
                 }
             }
         };
     }
-    
+    deleteComments=()=>{
+        this.setState({loading:true})
+        let arr = this.state.selectedRowKeys
+        axios.post('/deleteComments', {
+            data:arr
+        })
+            .then((res) => {
+                this.refresh()
+                this.setState({
+                    selectedRowKeys: [],
+                    loading: false
+                })
+                console.log(res)
+                message.success('删除成功');
+            })
+            .catch((err) => {
+                this.setState({
+                    loading: false
+                })
+                message.success(`删除失败 ${err}`);
+            });
+    }
+    OnReload=()=>{
+        this.setState({ reload: true })
+        setTimeout(() => {
+            this.setState({
+                reload: false
+            })
+            message.success('刷新成功');
+        }, 2000);
+    }
+    onSelectChange = (selectedRowKeys) => {
+        this.setState({ selectedRowKeys });
+    }
     componentDidMount() {
         this.getCommentList()
+    }
+    refresh(){
+        this.getCommentList(this.state.page,this.state.pageSize)
     }
     getCommentList(page = 1, pageSize=10){
         axios.get(`/getCommentList?page=${page}&pageSize=${pageSize}`)
@@ -42,6 +84,17 @@ class Comment extends Component {
             });
     }
     render() {
+        confirm=()=>{
+            this.deleteComments()
+        }
+        const text = "确定要删除吗？"
+        const { reload } = this.state
+        const {loading,selectedRowKeys} = this.state
+        const rowSelection = {
+            onChange: this.onSelectChange,
+            selectedRowKeys
+        };
+        const hasSelected = selectedRowKeys.length > 0;
         const columns = [{
             title: '姓名',
             dataIndex: 'nickname',
@@ -63,10 +116,6 @@ class Comment extends Component {
                         {avatar}{main}<br />{emain}<br />{website}
                     </span>
                 )
-                // if (row.website==""){
-                //     return (`${ avatar} ${text}` )
-                // }
-                // return (`${ avatar}`<a href={row.website}>{text}</a>)
             }
         }, {
             title: '评论',
@@ -76,7 +125,7 @@ class Comment extends Component {
             title: '回复至',
             dataIndex: 'title',
             key: 'title',
-                render: (text, row) => <a href={`/article/${row.article_id}`} target="_blank">{text}</a>
+            render: (text, row) => <a href={`/article/${row.article_id}`} target="_blank">{text}</a>
             
         }, {
             title: '评论时间',
@@ -85,13 +134,43 @@ class Comment extends Component {
         }];
         return(
         <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
-            <Table
-                dataSource={this.state.comments}
-                columns={columns}
-                bordered={true}
-                rowKey="id"
-                pagination={this.state.pagination}
-            />
+                <div style={{ marginBottom: 16 }}>
+                
+                    <Button
+                        type="primary"
+                        disabled={reload}
+                        loading={reload}
+                        onClick={this.OnReload}
+                    >
+                        Reload
+                    </Button>
+                    &nbsp;&nbsp;
+                    <Popconfirm placement="topLeft" title={text} onConfirm={confirm} okText="Yes" cancelText="No">
+                        <Button
+                            type="primary"
+                            
+                            disabled={!hasSelected}
+                            loading={loading}
+                        >
+                        Delect
+                        </Button>
+                    </Popconfirm>
+                        
+                    <span style={{ marginLeft: 8 }}>
+                        {hasSelected ? `Selected ${selectedRowKeys.length} items` : ''}
+                    </span>
+                    
+                </div>
+                <Spin spinning={reload}> 
+                    <Table
+                        dataSource={this.state.comments}
+                        rowSelection={rowSelection}
+                        columns={columns}
+                        bordered={true}
+                        rowKey="id"
+                        pagination={this.state.pagination}
+                    />
+            </Spin>
         </div>
         )
     }

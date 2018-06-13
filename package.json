@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "watch":"webpack --mode development --watch",
+    "watch": "webpack --mode development --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -16,6 +16,7 @@
   "dependencies": {
     "antd": "^3.6.1",
     "axios": "^0.18.0",
+    "file-loader": "1.1.11",
     "fileloader": "^2.0.0",
     "front-matter": "^2.3.0",
     "glob": "^7.1.2",
@@ -31,10 +32,10 @@
     "pug": "^2.0.3",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
-    "react-router-dom": "^4.2.2",
     "react-router": "^4.3.1",
-    "ua-parser-js": "^0.7.18",
-    "file-loader": "1.1.11"
+    "react-router-dom": "^4.2.2",
+    "simplemde": "^1.11.2",
+    "ua-parser-js": "^0.7.18"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
