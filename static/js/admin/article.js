@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Table, Button, Popconfirm, message, Spin, Divider  } from 'antd';
 import commonJs from "../../../server/routes/common"
 import axios from "axios"
+import { Link } from 'react-router-dom'
 class Article extends Component {
     constructor(props) {
         super(props);
@@ -81,7 +82,7 @@ class Article extends Component {
 
                 return(
                     <span>
-                        <a href="#">编辑</a>
+                        <Link to={`/admin/editor/${row.id}`}>编辑</Link>
                         <Divider type="vertical" />
                         <a href="#">删除</a>
                     </span>

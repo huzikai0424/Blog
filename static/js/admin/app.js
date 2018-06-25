@@ -1,12 +1,13 @@
 import React from 'react';
 import "./index.css";
-import { Layout, Menu, Breadcrumb, Icon, Table, Divider } from 'antd';
+import { Layout, Menu, Breadcrumb, Icon,  Popconfirm } from 'antd';
 import { Route, Switch, Link } from 'react-router-dom';
 import 'antd/dist/antd.css'
 
 import comment from "./comment";
 import article from "./article";
 import editor from "./editor";
+import options from "./options";
 const { Header, Content, Sider, Footer } = Layout;
 
 const { SubMenu } = Menu;
@@ -20,7 +21,10 @@ class App extends React.Component {
             collapsed: !this.state.collapsed
         })
     }
-
+    confirm=()=>{
+        //this.props.history.push('/logout')
+        window.location.href="/logout"
+    }
     render() {
         return (
             <Layout style={{ minHeight: '100vh' }}>
@@ -32,30 +36,47 @@ class App extends React.Component {
                     <div className="logo" />
                     <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
                         <Menu.Item key="1">
-                            <Link to="/admin/comment"><Icon type="pie-chart" /><span>评论</span></Link>
+                            <Link to="/admin">
+                                <Icon type="file"/>
+                                <span>首页</span>
+                            </Link>
                         </Menu.Item>
                         <Menu.Item key="2">
-                            <Link to="/admin/article"><Icon type="desktop" /><span>文章</span></Link>
+                            <Link to="/admin/comment"><Icon type="pie-chart" /><span>评论</span></Link>
                         </Menu.Item>
                         <SubMenu
                             key="sub1"
-                            title={<span><Icon type="user" /><span>User</span></span>}
+                            title={<span><Icon type="file-markdown" /><span>文章</span></span>}
                         >
-                            <Menu.Item key="3">评论</Menu.Item>
-                            <Menu.Item key="4">文章</Menu.Item>
-                            <Menu.Item key="5">Alex</Menu.Item>
+                            <Menu.Item key="3">
+                                <Link to="/admin/article"><Icon type="form" /><span>文章发布</span></Link>
+                            </Menu.Item>
+                            <Menu.Item key="4">
+                                <Link to="/admin/article"><Icon type="profile" /><span>文章管理</span></Link>
+                            </Menu.Item>
                         </SubMenu>
                         <SubMenu
                             key="sub2"
-                            title={<span><Icon type="team" /><span>Team</span></span>}
+                            title={<span><Icon type="tool" /><span>设置</span></span>}
                         >
-                            <Menu.Item key="6"><Link to="/admin/editor">MarkDown 编辑器</Link></Menu.Item>
-                            <Menu.Item key="8">Team 2</Menu.Item>
+                            <Menu.Item key="5"><Link to="/admin/options">博客设置</Link></Menu.Item>
+                            <Menu.Item key="6">系统设置</Menu.Item>
+                            <Menu.Item key="7">账户设置</Menu.Item>
+                            
                         </SubMenu>
-                        <Menu.Item key="9">
-                            <Icon type="file" />
-                            <span>File</span>
+                        <Menu.Item key="8">
+                            <Popconfirm 
+                                placement="topLeft"
+                                title="确定要注销吗" 
+                                onConfirm={this.confirm} 
+                                okText="Yes" 
+                                cancelText="No">
+                                <div>
+                                    <Icon type="logout" /><span>注销</span>
+                                </div>
+                            </Popconfirm>
                         </Menu.Item>
+                        
                     </Menu>
                 </Sider>
                 <Layout>
@@ -75,8 +96,8 @@ class App extends React.Component {
                             
                             <Route path="/admin/comment" component={comment} />
                             <Route path="/admin/article" component={article} />
-                            <Route path="/admin/editor" component={editor} />
-                            
+                            <Route path="/admin/editor/:id" component={editor} />
+                            <Route path="/admin/options" component={options} />
                         </Switch>
                     </Content>
                     <Footer style={{ textAlign: 'center' }}>

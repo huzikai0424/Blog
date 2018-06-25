@@ -1,6 +1,6 @@
 const mysql = require('mysql')
 const config = require('../../theme.config')
-
+const md5 = require('md5')
 const connection = mysql.createPool({
     host: 'localhost',
     user: 'root',
@@ -120,5 +120,19 @@ exports.getCommentList = (page = 1, pagesize = config.comment.pageSize,orderBy =
 exports.deleteComments = (arr) => {
     let ids = arr.toString()
     let sql = `delete from comments where id in (${ids})`
+    return query(sql)
+}
+/**
+ * 更新文章
+ */
+exports.updateArticleById = (id,postDate)=>{
+    let sql =`update articles set title=?,posts=?,type=?,views=?,tags=?,postTime=?,updateTime=? where id=${id}`
+    return query(sql, postDate)
+}
+/**
+ * 判断登陆
+ */
+exports.checkLogin = (username,password)=>{
+    let sql = `select id,username from user where username = "${username}" and password = "${password}"`
     return query(sql)
 }

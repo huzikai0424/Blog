@@ -251,19 +251,53 @@ router.post('/deleteComments', koaBody(),async(ctx)=>{
     let res = await mysql.deleteComments(postData)
     ctx.body = res 
 })
+router.post('/updateArticleById',koaBody(),async(ctx)=>{
+    let postDate = ctx.request.body.data
+    let { id, posts, postTime, tags, title, type, updateTime,views} = postDate
+    let arr = [title,posts,type,views,tags,postTime,updateTime]
+    let res = await mysql.updateArticleById(id, arr)
+    ctx.body = res
+})
 router.get('/getArticle/:id',async(ctx)=>{
     let id = ctx.params.id
     let res = await mysql.getArticleById(id)
     res[0][0].commentCount = res[1][0].commentCount
     ctx.body= res[0][0]
 })
+// router.post('/update')
 router.get('/admin', async (ctx) => {
+    if (!ctx.session.user){
+        await ctx.redirect("login")
+        return;
+    }
     await ctx.render('admin/index')
 })
 router.get('/admin/*',async(ctx)=>{
     await ctx.render('admin/index')
 })
+router.get('/login',async(ctx)=>{
+    await ctx.render('admin')
+})
+router.get("/logout",async(ctx)=>{
+    ctx.session = null
+    await ctx.redirect("login")
+})
 // router.get('*', async (ctx, next) => {
 //     await ctx.render('admin/index')
 // })
+router.get('/login',async(ctx)=>{
+    await ctx.render("login")
+})
+router.post('/checkLogin', koaBody(),async(ctx)=>{
+    let {username,password} = ctx.request.body
+    let res = await mysql.checkLogin(username,password)
+    if(!res.length){
+        ctx.body = false
+        return
+    }
+    if (res[0].username === username){
+        ctx.session.user=username
+        ctx.body = true
+    }
+})
 module.exports = router
