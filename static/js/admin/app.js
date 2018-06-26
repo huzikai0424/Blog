@@ -49,7 +49,7 @@ class App extends React.Component {
                             title={<span><Icon type="file-markdown" /><span>文章</span></span>}
                         >
                             <Menu.Item key="3">
-                                <Link to="/admin/article"><Icon type="form" /><span>文章发布</span></Link>
+                                <Link to="/admin/editor"><Icon type="form" /><span>文章发布</span></Link>
                             </Menu.Item>
                             <Menu.Item key="4">
                                 <Link to="/admin/article"><Icon type="profile" /><span>文章管理</span></Link>
@@ -97,7 +97,9 @@ class App extends React.Component {
                             <Route path="/admin/comment" component={comment} />
                             <Route path="/admin/article" component={article} />
                             <Route path="/admin/editor/:id" component={editor} />
+                            <Route path="/admin/editor" component={editor} />
                             <Route path="/admin/options" component={options} />
+                            
                         </Switch>
                     </Content>
                     <Footer style={{ textAlign: 'center' }}>

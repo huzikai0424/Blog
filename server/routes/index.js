@@ -12,7 +12,7 @@ const { join } = require('path')
 const config = require('../../theme.config')
 const axios = require('axios')
 const commonJs = require('./common')
-
+const path = require('path')
 const mysql = require('../database/mysql') 
 
 router.get('/', async (ctx) => {
@@ -298,6 +298,36 @@ router.post('/checkLogin', koaBody(),async(ctx)=>{
     if (res[0].username === username){
         ctx.session.user=username
         ctx.body = true
+    }
+})
+router.post('/upload',koaBody({
+    multipart: true,
+}),async(ctx)=>{
+    let data = ctx.request.body.files.file
+    let fileName = data.name
+    let oldPath = path.join(data.path)
+    let newPath = path.join(__dirname,"../../article",fileName)
+    let suffix = fileName.split(".")   
+    if (suffix[suffix.length-1]!="md"){
+        ctx.body = { state: false, msg: "只能上传.md后缀的文件" }
+        return;
+    }
+    
+    if(fs.existsSync(newPath)){
+        ctx.body = { state: false ,msg:"文件已存在"}
+    }else{
+        let pathDate = fs.readFileSync(oldPath).toString()
+        let meta = fm(pathDate)
+        let obj={
+            state:true,
+            data:meta.attributes,
+            md:meta.body
+        }
+        ctx.body = obj
+        // fs.rename(oldPath, newPath, (err) => {
+        //     if (err)
+        //         console.log(err)
+        // })
     }
 })
 module.exports = router

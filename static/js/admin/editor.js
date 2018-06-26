@@ -3,8 +3,9 @@ import SimpleMDE from 'simplemde'
 import 'simplemde/dist/simplemde.min.css'
 import axios from 'axios'
 import locale from 'moment/src/locale/zh-cn'
-import { Form, Icon, Input, Button, DatePicker, InputNumber, message} from 'antd'
+import { Form, Icon, Input, Button, DatePicker, InputNumber, message, Upload} from 'antd'
 import moment from "moment"
+import { debug } from 'util';
 const FormItem = Form.Item
 class Editor extends Component {
     constructor(props) {
@@ -15,32 +16,43 @@ class Editor extends Component {
     }
     componentDidMount() {
         const id = this.props.match.params.id
-        this.setState({ id })
-        axios.get(`/getArticle/${id}`)
-            .then((res) => {
-                this.smde = new SimpleMDE({
-                    element: document.getElementById("editor"),
-                    spellChecker: false,
-                    autofocus: true,
-                    promptURLs: true,
-                    status: ["autosave", "lines", "words", "cursor"],
-                    styleSelectedText: false,
-                    initialValue: res.data.posts,
+        if(id){
+            this.setState({ id })
+            axios.get(`/getArticle/${id}`)
+                .then((res) => {
+                    this.smde = new SimpleMDE({
+                        element: document.getElementById("editor"),
+                        spellChecker: false,
+                        autofocus: true,
+                        promptURLs: true,
+                        status: ["autosave", "lines", "words", "cursor"],
+                        styleSelectedText: false,
+                        initialValue: res.data.posts,
+                    })
+                    const data = res.data
+                   
+                    this.props.form.setFieldsValue({
+                        title:data.title,
+                        type: data.type ? data.type:"",
+                        tags:data.tags,
+                        views:data.views,
+                        postTime:moment(data.postTime)
+                    })
                 })
-                const data = res.data
-               
-                this.props.form.setFieldsValue({
-                    title:data.title,
-                    type: data.type ? data.type:"",
-                    tags:data.tags,
-                    views:data.views,
-                    postTime:moment(data.postTime)
-                })
+                .catch((error) => {
+                    this.props.history.push('/admin/article')
+                    console.log(error);
+                });
+        }else{
+            this.smde = new SimpleMDE({
+                element: document.getElementById("editor"),
+                spellChecker: false,
+                autofocus: true,
+                promptURLs: true,
+                status: ["autosave", "lines", "words", "cursor"],
+                styleSelectedText: false,
             })
-            .catch((error) => {
-                this.props.history.push('/admin/article')
-                console.log(error);
-            });
+        }
     }
     transform=(value)=>{
         return value?Number(value):null
@@ -91,7 +103,53 @@ class Editor extends Component {
     disabledDate=(current) =>{
        return  current > moment().endOf('day');
     }
+    beforeUpload = (file, fileList)=>{
+        console.log(file.type)
+        const fileSize = file.size/1024/1024
+        const suffix = file.name.split(".")
+        if (suffix[suffix.length - 1] != "md"){
+            message.error('只能上传.md后缀的文件');
+            fileList.splice(0, fileList.length)   //清空文件列表
+            return false;
+        }
+        if(fileSize>1){
+            message.error('Markdown must smaller than 1MB!');
+            return false;
+        }
+    }
     render() {
+        const that = this
+        const props = {
+            name: 'file',
+            action: '/upload',
+            beforeUpload:this.beforeUpload,
+            showUploadList:false,
+            onChange(info) {
+                if (!info.file.status){
+                    return
+                }
+                if (info.file.status === 'done') {
+                    let res = info.file.response
+                    if (res.state){
+                        message.success('读取文件成功')
+                        that.props.form.setFieldsValue({
+                            title: res.data.title,
+                            type: res.data.type ? res.data.type : "",
+                            tags: res.data.tags ? res.data.tags : "",
+                            views: res.data.views ? res.data.views:0,
+                            postTime: moment(res.data.postTime)
+                        })
+                        that.smde.value(res.md);
+                    }else{
+                        message.error(`上传失败 ${info.file.response.msg}`);
+                    }
+                } else if (info.file.status === 'error') {
+                    message.error(`${info.file.name} file upload failed.`);
+                }
+            },
+        };
+
+
         const { reload } = this.state
         const { getFieldDecorator, getFieldError, isFieldTouched } = this.props.form;
 
@@ -100,6 +158,10 @@ class Editor extends Component {
         // const passwordError = isFieldTouched('password') && getFieldError('password');
         return (
             <div>
+                <Upload {...props}>
+                    <Button> <Icon type="upload" />导入markdown</Button>
+                </Upload>
+                <br /><br />
                 <Form layout="vertical" onSubmit={this.handleSubmit}>
                     <FormItem >
                         {getFieldDecorator('title', {
