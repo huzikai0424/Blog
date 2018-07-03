@@ -238,14 +238,12 @@ router.get('/deleteArticleById/:id',async(ctx)=>{
     let id = ctx.params.id
     let fileName = `${ctx.query.title}.md`
     let a =  path.join(__dirname, "../../article", fileName)
-   console.log(a)
-  
     if(id){
         let res = await mysql.deleteArticleById(id)
         if(res.affectedRows){
             let url = path.join(__dirname, "../../article", fileName)
-            console.log(url)
             fs.unlink(path.join(__dirname, "../../article", fileName),(err)=>{
+                if(err)
                 console.log(err)
             })
             ctx.body={
