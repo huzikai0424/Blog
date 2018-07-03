@@ -39,6 +39,26 @@ class Article extends Component {
                 console.log(error);
             });
     }
+    confirmDelete=(id,title)=>{
+        axios.get(`/deleteArticleById/${id}`,{
+            params:{
+                title:title
+            }
+        }).then((res)=>{
+            if(res.data.success){
+               
+
+                message.success('删除成功', 1);
+                setTimeout(() => {
+                  location.reload()
+                }, 1000);
+            }
+        }).catch((err)=>{
+            console.log(err)
+
+        })
+       
+    }
     componentDidMount() {
         this.getArticleList()
     }
@@ -84,7 +104,14 @@ class Article extends Component {
                     <span>
                         <Link to={`/admin/editor/${row.id}`}>编辑</Link>
                         <Divider type="vertical" />
+                        <Popconfirm
+                            placement="topLeft"
+                            title="确定要删除吗"
+                            onConfirm={()=>this.confirmDelete(row.id,row.title)}
+                            okText="Yes"
+                            cancelText="No">
                         <a href="#">删除</a>
+                        </Popconfirm>
                     </span>
 
                 )

@@ -5,6 +5,8 @@ html
         title antd-admin
     body
         #root
+        script.
+            var session = !{JSON.stringify(session)};
         script(src="/dist/admin.js")
         
         

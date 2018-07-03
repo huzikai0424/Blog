@@ -8,6 +8,7 @@ import comment from "./comment";
 import article from "./article";
 import editor from "./editor";
 import options from "./options";
+import account from "./account"
 const { Header, Content, Sider, Footer } = Layout;
 
 const { SubMenu } = Menu;
@@ -61,7 +62,7 @@ class App extends React.Component {
                         >
                             <Menu.Item key="5"><Link to="/admin/options">博客设置</Link></Menu.Item>
                             <Menu.Item key="6">系统设置</Menu.Item>
-                            <Menu.Item key="7">账户设置</Menu.Item>
+                            <Menu.Item key="7"><Link to="/admin/account">账户设置</Link></Menu.Item>
                             
                         </SubMenu>
                         <Menu.Item key="8">
@@ -99,7 +100,7 @@ class App extends React.Component {
                             <Route path="/admin/editor/:id" component={editor} />
                             <Route path="/admin/editor" component={editor} />
                             <Route path="/admin/options" component={options} />
-                            
+                            <Route paht="/admin/account" component={account} />
                         </Switch>
                     </Content>
                     <Footer style={{ textAlign: 'center' }}>

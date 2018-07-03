@@ -233,6 +233,32 @@ router.get('/search/:search',async(ctx)=>{
         sideBarData: sideBarData
     })
 })
+router.get('/deleteArticleById/:id',async(ctx)=>{
+    //let id = ctx.query.id
+    let id = ctx.params.id
+    let fileName = `${ctx.query.title}.md`
+    let a =  path.join(__dirname, "../../article", fileName)
+   console.log(a)
+  
+    if(id){
+        let res = await mysql.deleteArticleById(id)
+        if(res.affectedRows){
+            let url = path.join(__dirname, "../../article", fileName)
+            console.log(url)
+            fs.unlink(path.join(__dirname, "../../article", fileName),(err)=>{
+                console.log(err)
+            })
+            ctx.body={
+                success:true
+            }
+        }
+    }else{
+        ctx.body = {
+            success:false,
+            msg:"参数错误，Id为空"
+        }
+    }
+})
 router.get('/getCommentList',async(ctx)=>{
     let page = ctx.query.page ? ctx.query.page:1
     let pageSize = ctx.query.pageSize ? ctx.query.pageSize :10
@@ -258,6 +284,28 @@ router.post('/updateArticleById',koaBody(),async(ctx)=>{
     let res = await mysql.updateArticleById(id, arr)
     ctx.body = res
 })
+router.post('/postArticle',koaBody(),async(ctx)=>{
+    let postDate = ctx.request.body.data
+    let { posts, postTime, tags, title, type, views, oldPath, newPath} = postDate
+    let html = ""
+    
+    if (posts.split("<!--more-->").length < 2) { //没有more标签
+        html = commonJs.delHtmlTag(marked(posts)).substr(0, 130)   //截取去除html标签后的180字
+    } else {
+        let data = posts.split("<!--more-->")[0]
+        html = commonJs.delHtmlTag(marked(data))                     //截取move标签之前的全部
+    }
+    let arr = [title, html, posts, type, Number(views), tags, postTime]
+    let res = await mysql.postArticle(arr)
+    if (res.affectedRows){
+        fs.rename(oldPath, newPath, (err) => {
+            if (err)
+                console.log(err)
+        })
+    }
+    ctx.body = res
+
+})
 router.get('/getArticle/:id',async(ctx)=>{
     let id = ctx.params.id
     let res = await mysql.getArticleById(id)
@@ -267,13 +315,21 @@ router.get('/getArticle/:id',async(ctx)=>{
 // router.post('/update')
 router.get('/admin', async (ctx) => {
     if (!ctx.session.user){
-        await ctx.redirect("login")
+        await ctx.redirect("/login")
         return;
     }
-    await ctx.render('admin/index')
+    await ctx.render('admin/index',{
+        session:ctx.session
+    })
 })
 router.get('/admin/*',async(ctx)=>{
-    await ctx.render('admin/index')
+    if (!ctx.session.user) {
+        await ctx.redirect("/login")
+        return;
+    }
+    await ctx.render('admin/index', {
+        session: ctx.session
+    })
 })
 router.get('/login',async(ctx)=>{
     await ctx.render('admin')
@@ -287,6 +343,33 @@ router.get("/logout",async(ctx)=>{
 // })
 router.get('/login',async(ctx)=>{
     await ctx.render("login")
+})
+router.post('/resetPassword',koaBody(),async(ctx)=>{
+    const { username, newpsw, oldpsw, changeUsername } = ctx.request.body.data
+    let usernameChange = changeUsername ? ctx.request.body.data.usernameChange : username
+    let checkAccount = await mysql.checkLogin(username, oldpsw)
+    if (checkAccount[0].username==username){
+        let changePsw = await mysql.resetAccount(usernameChange, newpsw)
+        if (changePsw.affectedRows){
+            ctx.session.user = usernameChange
+                ctx.body = {
+                    success: true
+                }
+        }else{
+            ctx.body={
+                success: false,
+                msg: "暂无数据修改",
+            }
+        }
+       
+    }else{
+        ctx.body = {
+            msg:"参数非法",
+            success:false
+        }
+    }
+
+
 })
 router.post('/checkLogin', koaBody(),async(ctx)=>{
     let {username,password} = ctx.request.body
@@ -321,7 +404,9 @@ router.post('/upload',koaBody({
         let obj={
             state:true,
             data:meta.attributes,
-            md:meta.body
+            md:meta.body,
+            oldPath: oldPath,
+            newPath: newPath
         }
         ctx.body = obj
         // fs.rename(oldPath, newPath, (err) => {

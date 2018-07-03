@@ -6,6 +6,7 @@ import locale from 'moment/src/locale/zh-cn'
 import { Form, Icon, Input, Button, DatePicker, InputNumber, message, Upload} from 'antd'
 import moment from "moment"
 import { debug } from 'util';
+import { assertJSXAttribute } from 'babel-types';
 const FormItem = Form.Item
 class Editor extends Component {
     constructor(props) {
@@ -55,15 +56,17 @@ class Editor extends Component {
         }
     }
     transform=(value)=>{
-        return value?Number(value):null
+        return value?Number(value+1):null
     }
     handleSubmit = (e) => {
         e.preventDefault();
+        
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
                 this.setState({
                     reload:true
                 })
+                
                 let markdown = this.smde.value()
                 let data={
                     id:Number(this.state.id),
@@ -73,30 +76,56 @@ class Editor extends Component {
                     posts: markdown,
                     tags: values.tags,
                     postTime: moment(values.postTime).unix()*1000,
-                    updateTime:moment().unix()*1000
+                    updateTime:moment().unix()*1000,
+                    oldPath: this.state.oldPath,
+                    newPath: this.state.newPath
                 }
-                
-                axios.post('/updateArticleById', {data})
-                .then((res) =>{
-                    setTimeout(() => {
+                if(this.state.id){
+                    axios.post('/updateArticleById', {data})
+                    .then((res) =>{
+                        setTimeout(() => {
+                            this.setState({
+                                reload: false
+                            })
+                            message.success('更新成功',1);
+                        }, 500);
+                        
+                        setTimeout(() => {
+                            this.props.history.push('/admin/article')
+                        }, 1500);
+                        console.log(res);
+                    })
+                    .catch((err) =>{
+                        this.setState({
+                            reload:false
+                        })
+                        message.error(err)
+                        console.log(err);
+                    });
+                }else{
+                    axios.post('/postArticle',{
+                        data: data
+                    }).then((res)=>{
+                        if (res.data.affectedRows){
+                            
+                            setTimeout(() => {
+                                this.setState({
+                                    reload: false
+                                })
+                                message.success('发布成功', 1);
+                            }, 500);
+                            setTimeout(() => {
+                                this.props.history.push('/admin/article')
+                            }, 1500);
+                        }
+                    }).catch((err)=>{
                         this.setState({
                             reload: false
                         })
-                        message.success('更新成功',1);
-                    }, 500);
-                    
-                    setTimeout(() => {
-                        this.props.history.push('/admin/article')
-                    }, 1500);
-                    console.log(res);
-                })
-                .catch((err) =>{
-                    this.setState({
-                        reload:false
+                        message.error(err)
+                        console.log(err)
                     })
-                    message.error(err)
-                    console.log(err);
-                });
+                }
             }
         });
     }
@@ -132,6 +161,10 @@ class Editor extends Component {
                     let res = info.file.response
                     if (res.state){
                         message.success('读取文件成功')
+                        that.setState({
+                            oldPath: res.oldPath,
+                            newPath: res.newPath
+                        })
                         that.props.form.setFieldsValue({
                             title: res.data.title,
                             type: res.data.type ? res.data.type : "",
@@ -158,7 +191,7 @@ class Editor extends Component {
         // const passwordError = isFieldTouched('password') && getFieldError('password');
         return (
             <div>
-                <Upload {...props}>
+                <Upload {...props} className={this.state.id?"":"hidden"}>
                     <Button> <Icon type="upload" />导入markdown</Button>
                 </Upload>
                 <br /><br />

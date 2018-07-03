@@ -66,7 +66,7 @@ exports.getTagsArtielc = (tags)=>{
     return query(sql)
 }
 /**
- * 插入或者更新文章
+ * 插入或者更新文章(弃用)
  */
 exports.addArticle = (data)=>{
     let sql =`INSERT INTO articles(title,des,posts,tags,postTime) VALUES ? ON DUPLICATE KEY UPDATE title=?,des=?,posts=?,tags=?,postTime=?`
@@ -130,9 +130,32 @@ exports.updateArticleById = (id,postDate)=>{
     return query(sql, postDate)
 }
 /**
+ * 发表文章
+ */
+exports.postArticle = (postDate)=>{
+    let sql = `insert into articles(title,des,posts,type,views,tags,postTime) values (?,?,?,?,?,?,?)`
+    let arr = postDate
+    return query(sql,arr)
+}
+/**
+ * 删除文章
+ */
+exports.deleteArticleById=(id)=>{
+    let sql = `delete from articles where id = ${id}`
+    return query(sql)
+}
+/**
  * 判断登陆
  */
 exports.checkLogin = (username,password)=>{
     let sql = `select id,username from user where username = "${username}" and password = "${password}"`
     return query(sql)
+}
+/**
+ * 修改用户名和密码
+ */
+exports.resetAccount=(username,password)=>{
+    let sql = 'update user set username = ?,password = ?'
+    let data = [username,password]
+    return query(sql,data)
 }
