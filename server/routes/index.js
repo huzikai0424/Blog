@@ -61,6 +61,13 @@ router.get('/article/:id', async(ctx) => {
         }
         return data
     })
+    let pidArr = []
+    commentList.commentList.forEach((item, index, arr) => {
+        pidArr.push(item.id)
+    })
+    let arr = pidArr.join(',')
+    let pidComment = await mysql.getChildCommentList(arr)
+    
     const posts = marked(articleDate.data.posts)
     mysql.pvAddOne(id) //pv+1
     await ctx.render('article', {
@@ -72,7 +79,8 @@ router.get('/article/:id', async(ctx) => {
         loadTime: new Date().getTime() - startTime,
         nextArtilce: articleDate.nextArtilce,
         preArticle: articleDate.preArticle,
-        id: id
+        id: id,
+        pidComment: pidComment ? JSON.stringify(pidComment):[]
     })
 })
 router.get('/getArticleList',async(ctx)=>{
@@ -92,7 +100,8 @@ router.post('/submitComment', koaBody(), async(ctx)=>{
     const userAgent = ctx.req.headers['user-agent']
     const postData=ctx.request.body.data
     const id = ctx.request.body.id
-    let data = [id, postData.nickname, postData.email, postData.website, userAgent, postData.comment, postData.qq]
+    const replyId = ctx.request.body.replyId
+    let data = [id, replyId ,postData.nickname, postData.email, postData.website, userAgent, postData.comment, postData.qq]
     let res = await mysql.submitComment(data)
     console.log(res)
     ctx.body = res
@@ -103,11 +112,18 @@ router.get('/getCommentList/:id',async(ctx)=>{
     const pageSize = ctx.query.pageSize ? ctx.query.pageSize : config.comment.pageSize
     const pageIndex = (page - 1) * pageSize
     let res = await mysql.getCommentListById(id, pageIndex, pageSize)
+    let pidArr = []
+    res[0].forEach((item,index,arr)=>{
+        pidArr.push(item.id)
+    })
+    let arr = pidArr.join(',')
+    let pidComment = await mysql.getChildCommentList(arr)
     let data = {
         data:res[0],
         page:page,
         pageSize:pageSize,
-        total:res[1][0].total
+        total:res[1][0].total,
+        pidComment: pidComment
     }
     ctx.body = data
 })
@@ -117,56 +133,56 @@ router.get('/userAgent',(ctx)=>{
     ctx.body = userAgent
 })
 
-router.get('/update', async(ctx) => {
-    let startTime = new Date().getTime()
-    let postListMeta = await new Promise((resolve, reject) => {
-        glob(join(__dirname, '../../article', "**/*.md"), function (err, files) {
-            let postListMeta = []
-            let tags = []
-            files.forEach((item, index) => {
-                let meta = fm(fs.readFileSync(item).toString())
-                let html = ""
-                meta.attributes.tags.split("/").forEach((item, index) => {
-                    if (tags.indexOf(item) == -1 && item) {
-                        tags.push(item)
-                    }
-                })
-                if (meta.body.split("<!--more-->").length < 2) { //没有more标签
-                    html = commonJs.delHtmlTag(marked(meta.body)).substr(0, 130)   //截取去除html标签后的180字
-                } else {
-                    let data = meta.body.split("<!--more-->")[0]
-                    html = commonJs.delHtmlTag(marked(data))                     //截取move标签之前的全部
-                }
-                if (JSON.stringify(meta.attributes) != "{}") {
-                    //meta.attributes.tags = tags
-                    meta.attributes.profile = html
-                    postListMeta.push(meta)
-                }
-            })
-            resolve(postListMeta)
-        })
-    })
+// router.get('/update', async(ctx) => {
+//     let startTime = new Date().getTime()
+//     let postListMeta = await new Promise((resolve, reject) => {
+//         glob(join(__dirname, '../../article', "**/*.md"), function (err, files) {
+//             let postListMeta = []
+//             let tags = []
+//             files.forEach((item, index) => {
+//                 let meta = fm(fs.readFileSync(item).toString())
+//                 let html = ""
+//                 meta.attributes.tags.split("/").forEach((item, index) => {
+//                     if (tags.indexOf(item) == -1 && item) {
+//                         tags.push(item)
+//                     }
+//                 })
+//                 if (meta.body.split("<!--more-->").length < 2) { //没有more标签
+//                     html = commonJs.delHtmlTag(marked(meta.body)).substr(0, 130)   //截取去除html标签后的180字
+//                 } else {
+//                     let data = meta.body.split("<!--more-->")[0]
+//                     html = commonJs.delHtmlTag(marked(data))                     //截取move标签之前的全部
+//                 }
+//                 if (JSON.stringify(meta.attributes) != "{}") {
+//                     //meta.attributes.tags = tags
+//                     meta.attributes.profile = html
+//                     postListMeta.push(meta)
+//                 }
+//             })
+//             resolve(postListMeta)
+//         })
+//     })
     
-    const sort = ctx.query.sort == "asc" ? "asc" : "desc" // 1升序,-1降序
-    let arr=[]
-    postListMeta.forEach((item,index)=>{
-        let attributes = item.attributes
-        let timeStamp = Date.parse(attributes.date)
-        let body = item.body
-        let arrFormat = [
-            attributes.title,
-            attributes.profile,
-            body,
-            attributes.tags,
-            timeStamp
-        ]
-        arr.push(arrFormat)
-    })
-    // ctx.body=arr
-    // console.log(arr)
-    let res = await mysql.addArticle([arr])
-    ctx.body = res 
-})
+//     const sort = ctx.query.sort == "asc" ? "asc" : "desc" // 1升序,-1降序
+//     let arr=[]
+//     postListMeta.forEach((item,index)=>{
+//         let attributes = item.attributes
+//         let timeStamp = Date.parse(attributes.date)
+//         let body = item.body
+//         let arrFormat = [
+//             attributes.title,
+//             attributes.profile,
+//             body,
+//             attributes.tags,
+//             timeStamp
+//         ]
+//         arr.push(arrFormat)
+//     })
+//     // ctx.body=arr
+//     // console.log(arr)
+//     let res = await mysql.addArticle([arr])
+//     ctx.body = res 
+// })
 
 router.get('/tags/:tags', async (ctx) => {
     let tags = ctx.params.tags
@@ -234,10 +250,14 @@ router.get('/search/:search',async(ctx)=>{
     })
 })
 router.get('/deleteArticleById/:id',async(ctx)=>{
+    if (!ctx.session.user){
+        ctx.response.status=503
+        return
+    }
     //let id = ctx.query.id
     let id = ctx.params.id
     let fileName = `${ctx.query.title}.md`
-    let a =  path.join(__dirname, "../../article", fileName)
+    
     if(id){
         let res = await mysql.deleteArticleById(id)
         if(res.affectedRows){
@@ -271,11 +291,19 @@ router.get('/getCommentList',async(ctx)=>{
     
 })
 router.post('/deleteComments', koaBody(),async(ctx)=>{
+    if (!ctx.session.user) {
+        ctx.response.status = 503
+        return
+    }
     let postData = ctx.request.body.data
     let res = await mysql.deleteComments(postData)
     ctx.body = res 
 })
 router.post('/updateArticleById',koaBody(),async(ctx)=>{
+    if (!ctx.session.user) {
+        ctx.response.status = 503
+        return
+    }
     let postDate = ctx.request.body.data
     let { id, posts, postTime, tags, title, type, updateTime,views} = postDate
     let arr = [title,posts,type,views,tags,postTime,updateTime]
@@ -283,6 +311,10 @@ router.post('/updateArticleById',koaBody(),async(ctx)=>{
     ctx.body = res
 })
 router.post('/postArticle',koaBody(),async(ctx)=>{
+    if (!ctx.session.user) {
+        ctx.response.status = 503
+        return
+    }
     let postDate = ctx.request.body.data
     let { posts, postTime, tags, title, type, views, oldPath, newPath} = postDate
     let html = ""
@@ -333,16 +365,24 @@ router.get('/login',async(ctx)=>{
     await ctx.render('admin')
 })
 router.get("/logout",async(ctx)=>{
+    if (!ctx.session.user) {
+        ctx.response.status = 503
+        return
+    }
     ctx.session = null
     await ctx.redirect("login")
 })
 // router.get('*', async (ctx, next) => {
 //     await ctx.render('admin/index')
 // })
-router.get('/login',async(ctx)=>{
-    await ctx.render("login")
-})
+// router.get('/login',async(ctx)=>{
+//     await ctx.render("login")
+// })
 router.post('/resetPassword',koaBody(),async(ctx)=>{
+    if (!ctx.session.user) {
+        ctx.response.status = 503
+        return
+    }
     const { username, newpsw, oldpsw, changeUsername } = ctx.request.body.data
     let usernameChange = changeUsername ? ctx.request.body.data.usernameChange : username
     let checkAccount = await mysql.checkLogin(username, oldpsw)
@@ -384,6 +424,10 @@ router.post('/checkLogin', koaBody(),async(ctx)=>{
 router.post('/upload',koaBody({
     multipart: true,
 }),async(ctx)=>{
+    if (!ctx.session.user) {
+        ctx.response.status = 503
+        return
+    }
     let data = ctx.request.body.files.file
     let fileName = data.name
     let oldPath = path.join(data.path)

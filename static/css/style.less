@@ -11,12 +11,13 @@ a{
 }
 ul{
 	overflow:hidden;
+	margin-bottom: 0 !important;
 }
 li{
 	list-style:none;
 }
 body{
-	background-color: #f6f6f6;
+	background-color: #f6f6f6 !important;
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
@@ -156,27 +157,7 @@ main{
 							}
 						}
 						
-						#author-info{
-							input{
-								padding:0 15px;
-								height:35px;
-								line-height: 35px;
-								width:100%;
-								color:#535a63;
-								font-size:15px;
-								margin: 10px 0;
-								border: 1px solid #ccc;
-								outline: none;
-							}
-							button#submit{
-								background: #0097ee;
-								color:#fff;
-								height:35px;
-								line-height: 35px;
-								border:none;
-								padding:0 10px;
-							}
-						}
+						
 						h3{
 							text-align: center;	
 							height:20px;
@@ -467,6 +448,9 @@ main{
 	}
 }
 footer{
+	.heart{
+		color:#f73f51;
+	}
 	background-color: #fff;
 	padding:5px 0;
 	text-align:center;

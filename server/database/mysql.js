@@ -76,16 +76,24 @@ exports.addArticle = (data)=>{
  * 获得某文章下的评论列表和总条数
  */
 exports.getCommentListById = (id, pageIndex = 0, pageSize = config.comment.pageSize, orderBy = config.comment.orderBy, desc = config.comment.desc ? "desc" : "asc")=>{
-    const sql = `select * from comments where article_id = ${id} ORDER BY ${orderBy} ${desc} limit ${pageIndex},${pageSize} `;
+    const sql = `select * from comments where article_id = ${id} and pid = 0 ORDER BY ${orderBy} ${desc} limit ${pageIndex},${pageSize} `;
     const sql2 = `select count(*) as total from comments where article_id = ${id}`
     const querySql = `${sql};${sql2}`
     return query(querySql)
 }
 /**
+ * 获得子级评论
+ */
+exports.getChildCommentList=(pid)=>{
+    const arr = pid
+    const sql = `select * from comments where pid in (${arr})`
+    return query(sql)
+}
+/**
  * 插入评论
  */
 exports.submitComment = (data)=>{
-    let addsql = `insert into comments(article_id,pid,nickname,email,website,ua,detail,qq,timestamp) values (?,0,?,?,?,?,?,?,NOW())`;
+    let addsql = `insert into comments(article_id,pid,nickname,email,website,ua,detail,qq,timestamp) values (?,?,?,?,?,?,?,?,NOW())`;
     return query(addsql,data)
 }
 /**

@@ -33,7 +33,7 @@ module.exports ={
         nickname:"柠檬酸",    
         description:"最强咸鱼...",
         ICP:"浙ICP备16046701号",
-        copyright:"© 2018 柠檬酸"
+        copyright:"© 2018"
     },
     personalOptions:{
         blogAge:"2018/09/24",
