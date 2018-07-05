@@ -55,9 +55,12 @@ router.get('/article/:id', async(ctx) => {
         return data
     })
     let commentList =  await mysql.getCommentListById(id).then(res=>{
+        let ptotal = res[1][1] ? res[1][1].count:0
+        
         let data = {
             commentList : res[0],
-            total:res[1][0].total
+            total:res[1][0].count,
+            ptotal: ptotal
         }
         return data
     })
@@ -66,8 +69,14 @@ router.get('/article/:id', async(ctx) => {
         pidArr.push(item.id)
     })
     let arr = pidArr.join(',')
-    let pidComment = await mysql.getChildCommentList(arr)
-    
+    let pidComment=[]
+    if(arr){
+        pidComment = await mysql.getChildCommentList(arr)
+    }
+    let sideBarData = await axios.get(`http://localhost:1234/getSidebarInfo`)
+    if (sideBarData.statusText == "OK")
+        sideBarData = sideBarData.data
+
     const posts = marked(articleDate.data.posts)
     mysql.pvAddOne(id) //pv+1
     await ctx.render('article', {
@@ -80,7 +89,9 @@ router.get('/article/:id', async(ctx) => {
         nextArtilce: articleDate.nextArtilce,
         preArticle: articleDate.preArticle,
         id: id,
-        pidComment: pidComment ? JSON.stringify(pidComment):[]
+        pidComment: pidComment ? JSON.stringify(pidComment):[],
+        isLogin:ctx.session.user?true:false,
+        sideBarData: sideBarData
     })
 })
 router.get('/getArticleList',async(ctx)=>{
@@ -100,10 +111,9 @@ router.post('/submitComment', koaBody(), async(ctx)=>{
     const userAgent = ctx.req.headers['user-agent']
     const postData=ctx.request.body.data
     const id = ctx.request.body.id
-    const replyId = ctx.request.body.replyId
+    const replyId = ctx.request.body.replyId ? ctx.request.body.replyId:0
     let data = [id, replyId ,postData.nickname, postData.email, postData.website, userAgent, postData.comment, postData.qq]
     let res = await mysql.submitComment(data)
-    console.log(res)
     ctx.body = res
 })
 router.get('/getCommentList/:id',async(ctx)=>{
@@ -117,12 +127,16 @@ router.get('/getCommentList/:id',async(ctx)=>{
         pidArr.push(item.id)
     })
     let arr = pidArr.join(',')
-    let pidComment = await mysql.getChildCommentList(arr)
+    let pidComment = ""
+    if(arr){
+        pidComment = await mysql.getChildCommentList(arr)
+    }
     let data = {
         data:res[0],
         page:page,
         pageSize:pageSize,
         total:res[1][0].total,
+        ptotal:res[1][1].total,
         pidComment: pidComment
     }
     ctx.body = data
@@ -251,7 +265,7 @@ router.get('/search/:search',async(ctx)=>{
 })
 router.get('/deleteArticleById/:id',async(ctx)=>{
     if (!ctx.session.user){
-        ctx.response.status=503
+        ctx.response.status=403
         return
     }
     //let id = ctx.query.id
@@ -292,7 +306,7 @@ router.get('/getCommentList',async(ctx)=>{
 })
 router.post('/deleteComments', koaBody(),async(ctx)=>{
     if (!ctx.session.user) {
-        ctx.response.status = 503
+        ctx.response.status = 403
         return
     }
     let postData = ctx.request.body.data
@@ -301,7 +315,7 @@ router.post('/deleteComments', koaBody(),async(ctx)=>{
 })
 router.post('/updateArticleById',koaBody(),async(ctx)=>{
     if (!ctx.session.user) {
-        ctx.response.status = 503
+        ctx.response.status = 403
         return
     }
     let postDate = ctx.request.body.data
@@ -312,7 +326,7 @@ router.post('/updateArticleById',koaBody(),async(ctx)=>{
 })
 router.post('/postArticle',koaBody(),async(ctx)=>{
     if (!ctx.session.user) {
-        ctx.response.status = 503
+        ctx.response.status = 403
         return
     }
     let postDate = ctx.request.body.data
@@ -366,11 +380,11 @@ router.get('/login',async(ctx)=>{
 })
 router.get("/logout",async(ctx)=>{
     if (!ctx.session.user) {
-        ctx.response.status = 503
+        ctx.response.status = 403
         return
     }
     ctx.session = null
-    await ctx.redirect("login")
+    await ctx.redirect(ctx.headers.referer ? ctx.headers.referer:"login")
 })
 // router.get('*', async (ctx, next) => {
 //     await ctx.render('admin/index')
@@ -380,7 +394,7 @@ router.get("/logout",async(ctx)=>{
 // })
 router.post('/resetPassword',koaBody(),async(ctx)=>{
     if (!ctx.session.user) {
-        ctx.response.status = 503
+        ctx.response.status = 403
         return
     }
     const { username, newpsw, oldpsw, changeUsername } = ctx.request.body.data
@@ -425,7 +439,7 @@ router.post('/upload',koaBody({
     multipart: true,
 }),async(ctx)=>{
     if (!ctx.session.user) {
-        ctx.response.status = 503
+        ctx.response.status = 403
         return
     }
     let data = ctx.request.body.files.file

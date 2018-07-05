@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import axios from 'axios'
-import { Input, Select, Button,Form} from 'antd'
+import { Input, Select, Button, Form, Tooltip, Popconfirm, message} from 'antd'
 import 'antd/lib/input/style/css'
 import 'antd/lib/select/style/css'
 import 'antd/lib/button/style/css'
+import 'antd/lib/tooltip/style/css'
+import 'antd/lib/popconfirm/style/css'
+import 'antd/lib/message/style/css'
 const { TextArea } = Input
 const Option = Select.Option
 const FormItem = Form.Item
@@ -19,7 +22,8 @@ class Comment extends Component{
             currentPage:1,
             commentList: this.props.data.data.commentList,
             childComment:this.props.data.pidComment,
-            replyId:null
+            replyId:null,
+            isLogin: this.props.data.isLogin
         };
     }
     
@@ -51,7 +55,8 @@ class Comment extends Component{
             if (response.statusText == "OK") {
                 that.setState({
                     commentList: response.data.data,
-                    currentPage: Number(response.data.page)
+                    currentPage: Number(response.data.page),
+                    childComment: response.data.pidComment
                 })
             } else {
                 console.log(`错误${response.data.message}`)
@@ -78,6 +83,40 @@ class Comment extends Component{
         })
         this.props.form.getFieldInstance('comment').focus()
        // this.comment.focus()
+    }
+    cancelReply=()=>{
+        this.setState({
+            placeholder: "留下来说几句吧...",
+            replyId: null,
+        })
+    } 
+    delete(id,pid){
+        let arr = [id]
+        axios.post('/deleteComments', {
+            data: arr
+        })
+            .then((res) => {
+                if (res.data.affectedRows){
+                    if(pid!=0){
+                        let count = ""
+                        this.state.childComment.forEach((item,index)=>{
+                            if(item.id==id){
+                                count=index
+                            }
+                        })
+                        let arr=this.state.childComment
+                        arr.splice(count, 1)
+                        this.setState({
+                            childComment:arr
+                        })
+                    }
+                    message.success('删除成功');
+                }
+            })
+            .catch((err) => {
+                message.error(`不是管理员你删个锤子啊！`);
+            });
+        console.log(id)
     }
     changeEvent(e){
         const value = event.target.value
@@ -121,6 +160,7 @@ class Comment extends Component{
         })
     }
     
+    
     render(){
         const { getFieldDecorator } = this.props.form
         const selectBefore = (
@@ -137,10 +177,63 @@ class Comment extends Component{
         );
 
         let result = this.state.commentList.map((obj,index)=>{
-            this.state.childComment.forEach((item,count)=>{
-                if (item.pid==obj.id)
-                    console.log(obj.nickname,index)
+            let chilidCommentsArr=[]
+            this.state.childComment.map((item,key)=>{
+                if (item.pid==obj.id){
+                    let deleteBtn = ""
+                    if(this.state.isLogin){
+                        deleteBtn=(
+                            <Popconfirm placement="topLeft" title="确定删除这条评论吗?" onConfirm={() => this.delete(item.id,item.pid)} okText="Yes" cancelText="No">
+                                <button className="deleteChild">删除</button>
+                            </Popconfirm>
+                        )
+                    }
+                    let arr=(
+                        <div className="child-comment-main" data-commentid={item.id} key={key}>
+                            <span className="arr-top">
+                                <i className="bd">◆</i>
+                                <i className="bg">◆</i>
+                            </span>
+                            <a href={item.website} target="_blank"><span>{item.nickname}</span></a>
+                            <span> : {item.detail}</span>
+                            {deleteBtn}
+                        </div> 
+                    )
+                    chilidCommentsArr.push(arr)
+                }
             })
+            let chilidComments = ()=>{
+                let arr = chilidCommentsArr.map((obj, index) => obj )
+                if(arr.length){
+                    return(
+                        <div className="child-comment">
+                            {arr}
+                        </div>
+                    )
+                }else{
+                    return ""
+                }
+            }
+            let ifshowDeleteBtn = ()=>{
+                let dom = ""
+                if(this.state.isLogin){
+                    dom = (
+                        <div className="operate">
+                            <Popconfirm placement="topLeft" title="确定删除这条评论吗?" onConfirm={() => this.delete(obj.id, obj.pid)} okText="Yes" cancelText="No">
+                                <button className="delete">删除</button>
+                            </Popconfirm>
+                            <button className="reply" onClick={() => this.reply(obj.id, obj.nickname)}>回复</button>
+                        </div>
+                    )
+                }else{
+                    dom=(
+                        <div className="operate">
+                            <button className="reply" onClick={() => this.reply(obj.id, obj.nickname)}>回复</button>
+                        </div>
+                    )
+                }
+                return dom
+            }
             let Md5email = require('crypto').createHash('md5').update(obj.email).digest('hex')
             let ua = parser(obj.ua)
             return(
@@ -149,24 +242,22 @@ class Comment extends Component{
                     <div className="author-info">
                         <img src={`//secure.gravatar.com/avatar/${Md5email}?s=100`}/>
                             <p>
-                                <a href={obj.website} target="_blank"><span className="ua author-name">{obj.nickname}</span></a>
-                                <span className="ua ua-browser">{`${ua.browser.name} ${ua.browser.major} `}</span>
-                                <span className="ua ua-os">{`${ua.os.name} ${ua.os.version}`}</span>
+                                <Tooltip placement="topLeft" title={`${ua.browser.name} ${ua.browser.major} / ${ua.os.name} ${ua.os.version}`}>
+                                    <a href={obj.website} target="_blank"><span className="ua author-name">{obj.nickname}</span></a>
+                                </Tooltip>
+                                
                             </p>
                             <p className="comment-time">{this.formatTime(obj.timestamp)}</p>
                     </div>
                     <div className="comment-body">
                         {obj.detail}
                     </div>
-                    <button className="reply" onClick={() => this.reply(obj.id, obj.nickname)}>回复</button>
+                        {ifshowDeleteBtn()}
                 </div>
-                <div className="child-comment">
-                
-                
-                </div>
+                {chilidComments()}
             </li>)
         })
-        let totalPage = Math.ceil(this.props.data.data.total / this.props.data.pageSize)
+        let totalPage = Math.ceil(this.props.data.data.ptotal / this.props.data.pageSize)
         let div = []
         for(let i = 1 ; i<= totalPage; i++){
             if (this.state.currentPage == i){
@@ -182,13 +273,19 @@ class Comment extends Component{
         return(
             <div>
                 <h2>发表评论</h2>
-                <p className="islogin">{this.state.placeholder ? this.state.placeholder:""}</p>
+                <p className={this.state.isLogin ?"isLogin":"hidden"}>
+                    <span>目前是管理员身份,<a href="/logout">退出</a>?</span>
+                </p>
+                <p className="tipInfo">
+                    {this.state.placeholder ? this.state.placeholder : ""}
+                    <span onClick={this.cancelReply} className={this.state.replyId ?"tipInfo":"hidden"}>取消</span>
+                </p>
                 <Form onSubmit={this.handleSubmit}>
                     <FormItem>
                         {getFieldDecorator('comment', {
                             rules: [{ required: true, message: '请至少输入一个汉字', pattern: /[\u4e00-\u9fa5]/gm}],
                         })(
-                            <TextArea placeholder={this.state.placeholder}  autosize={{ minRows: 3, maxRows: 6 }} />
+                            <TextArea placeholder={this.state.placeholder}  autosize={{ minRows: 3, maxRows: 6 }} tabIndex="1" />
                         )}
                     </FormItem>
                     <br />
@@ -197,7 +294,7 @@ class Comment extends Component{
                             {getFieldDecorator('nickname', {
                                 rules: [{ required: true, message: '昵称不能为空' }],
                             })(
-                                <Input placeholder="昵称 (必填)" />
+                                <Input placeholder="昵称 (必填)" tabIndex="2"/>
                             )}
                         </FormItem>
                         <br />
@@ -209,13 +306,13 @@ class Comment extends Component{
                                     
                                 }],
                             })(
-                                <Input placeholder="邮箱 (必填)" />
+                                <Input placeholder="邮箱 (必填)" tabIndex="3"/>
                             )}
                         </FormItem>
                         <br />
                         <FormItem>
                             {getFieldDecorator('website')(
-                                <Input addonBefore={selectBefore} />
+                                <Input addonBefore={selectBefore} tabIndex="4"/>
                             )}
                         </FormItem>
                         <br />

@@ -5,9 +5,9 @@
 	font-family: "Microsoft YaHei";
 }
 a{
-	text-decoration: none;
-	color:#343a40;
-	font-size: 16px;
+	text-decoration: none !important;
+	color:#343a40 !important;
+	font-size: 16px ;
 }
 ul{
 	overflow:hidden;
@@ -21,6 +21,9 @@ body{
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
+}
+.hidden{
+	display: none;
 }
 header {
 	background-color: #fff;
@@ -156,7 +159,10 @@ main{
 								outline: none;
 							}
 						}
-						
+						.tipInfo>span{
+							margin-left:10px;
+							cursor: pointer;
+						}
 						
 						h3{
 							text-align: center;	
@@ -205,6 +211,39 @@ main{
 								padding:20px 0;
 								border-bottom: 1px solid #f0f0f0;
 								position: relative;
+								.child-comment-main{
+									padding: 8px 19px;
+									margin-top: 10px;
+									line-height: 20px;
+									background: #f4f4f4;
+									border: 1px solid #dedede;
+									color:#666;
+									position: relative;
+									font-size: 15px;
+									border-radius: 3px;
+									a{
+										font-size:15px;
+									}
+									.arr-top{
+										position: absolute;
+										top: -7px;
+										left: 20px;
+										font-size: 12px;
+										line-height: 14px;
+										.bd{
+											color:#dedede;
+										}
+										.bg{
+											top: 1px;
+    										color: #f4f4f4;
+										}
+										i{
+											position: absolute;
+											top: 0;
+											left: 0;
+										}
+									}
+								}
 								.author-info{
 									font-size:13px;
 									overflow: hidden;
@@ -218,26 +257,16 @@ main{
 									p{
 										line-height: 25px;
 										height: 25px;
+										margin-bottom: 0!important;
 										span{
-											padding: 0 10px;
-											color: #777;
+											font-weight: 300;
+											color:#000;
 										}
 									}
 									.ua{
-										color:#fff;
-										padding:0 5px;
-										border-radius: 4px;
 										margin-right: 6px;
 									}
-									.ua-browser{
-										background: rgb(100, 185, 255);
-									}
-									.ua-os{
-										background: rgb(255, 170, 115);
-									}
-									.author-name{
-										background: #f4a7b9;
-									}
+									
 									
 								}
 								.comment-body{
@@ -253,12 +282,26 @@ main{
 									font-size: 12px;
 									line-height: 1;
 									border-radius: 3px;
-									position: absolute;
-									right: 0;
-									top:20px;
 									border:none;
 									cursor: pointer;
+									float:right;
 								}
+								.operate{
+									position: absolute;
+									top:20px;
+									right:0;
+									width:100px;
+								}
+								button.reply{
+									margin-right:10px;
+								}
+								button.deleteChild{
+									display: none;
+								}
+								.child-comment-main:hover button.deleteChild{
+									display:inline-block;
+								}
+
 							}
 						}
 					}
@@ -371,6 +414,9 @@ main{
 				.contact{
 					border-top: 1px dashed #ccc;
 					padding:10px 20px;
+					a{
+						font-size:13px;
+					}
 					ul{
 						overflow:hidden;
 						li{

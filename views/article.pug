@@ -41,20 +41,20 @@ html
                             .statistics
                                 ul
                                     li
-                                        .count 12
+                                        .count #{sideBarData.totalArticle}
                                         .type 文章
                                     li
-                                        .count 12
-                                        .type 文章
+                                        .count #{sideBarData.tags.length}
+                                        .type 标签
                                     li
-                                        .count 12
-                                        .type 文章
+                                        .count #{sideBarData.totalComment}
+                                        .type 评论
                             .contact
                                 ul
                                     li #[img(src="/images/QQ.png")]  QQ
                                     li #[img(src="/images/weixin.png")] 微信
-                                    li #[img(src="/images/weibo.png")] 微博
-                                    li #[img(src="/images/github3.png")] github
+                                    li #[img(src="/images/weibo.png")] #[a(href=`${config.contact.weibo}`  target="_blank" ) 微博] 
+                                    li #[img(src="/images/github3.png")] #[a(href=`${config.contact.github}` target="_blank") Github] 
                         aside#article-nav
         include components/footer.pug
         script.
@@ -62,7 +62,8 @@ html
                 data:!{JSON.stringify(comments)},
                 pageSize:!{pageSize},
                 id:!{id},
-                pidComment:!{pidComment}
+                pidComment:!{pidComment},
+                isLogin:!{isLogin}
             }
         script(src="/js/libs/jquery-1.11.1.min.js")
         script(src="/js/libs/CateNav.js")

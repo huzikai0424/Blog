@@ -77,7 +77,7 @@ exports.addArticle = (data)=>{
  */
 exports.getCommentListById = (id, pageIndex = 0, pageSize = config.comment.pageSize, orderBy = config.comment.orderBy, desc = config.comment.desc ? "desc" : "asc")=>{
     const sql = `select * from comments where article_id = ${id} and pid = 0 ORDER BY ${orderBy} ${desc} limit ${pageIndex},${pageSize} `;
-    const sql2 = `select count(*) as total from comments where article_id = ${id}`
+    const sql2 = `select count(*) as count from comments where article_id = ${id} union select count(*) as ctotal from comments where article_id = ${id} and pid= 0 `
     const querySql = `${sql};${sql2}`
     return query(querySql)
 }
@@ -86,7 +86,7 @@ exports.getCommentListById = (id, pageIndex = 0, pageSize = config.comment.pageS
  */
 exports.getChildCommentList=(pid)=>{
     const arr = pid
-    const sql = `select * from comments where pid in (${arr})`
+    const sql = `select * from comments where pid in (${arr}) ORDER By timestamp asc`
     return query(sql)
 }
 /**
@@ -127,7 +127,7 @@ exports.getCommentList = (page = 1, pagesize = config.comment.pageSize,orderBy =
  */
 exports.deleteComments = (arr) => {
     let ids = arr.toString()
-    let sql = `delete from comments where id in (${ids})`
+    let sql = `delete from comments where id in (${ids}) or pid in (${ids})`
     return query(sql)
 }
 /**
