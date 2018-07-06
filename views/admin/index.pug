@@ -3,11 +3,13 @@ html
     head
         meta(charset="UTF-8")
         title antd-admin
+        link(href="css/admin.css", rel="stylesheet")
+        
     body
         #root
         script.
             var session = !{JSON.stringify(session)};
-        script(src="/dist/admin.js")
+        script(src="/js/admin.js")
         
         
         

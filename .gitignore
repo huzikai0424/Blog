@@ -1,6 +1,5 @@
 node_modules
-public
+dist
 .tmp
 .vscode
-static/dist/admin.js
-static/dist/comment.js
+

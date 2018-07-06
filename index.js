@@ -10,7 +10,7 @@ const router = require('./server/routes/index')
 const PORT=1234
 const app=new Koa()
 const c = require('child_process');
-const main = serve(path.join(__dirname,'./static')) 
+const main = serve(path.join(__dirname,'./dist')) 
 
 app.use(main) //静态资源
 app.use(views(resolve(__dirname,'./views'),{    //view默认模板后缀

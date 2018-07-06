@@ -1,13 +1,16 @@
 const path = require('path');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 module.exports={
-    devtool: 'eval-source-map',
+    devtool: 'none',
     entry:{
         "comment":[path.join(__dirname,"/static/js/index.js")],
-        "admin":[path.join(__dirname,"/static/js/admin/index.js")]
+        "admin":[path.join(__dirname,"/static/js/admin/index.js")],
+        "test":[path.join(__dirname,"/static/js/test.js")]
     },
     output:{
-        path: path.resolve(__dirname,'static'),
-        filename:'dist/[name].js',
+        path: path.resolve(__dirname,'dist'),
+        filename:'js/[name].js',
         publicPath: '/'
     },
     module:{
@@ -19,11 +22,11 @@ module.exports={
             },
             {
                 test: /\.less$/,
-                use:[
-                    'style-loader',
-                    { loader: 'css-loader', options: { importLoaders: 1 } },
-                    'less-loader'
-                ]
+                use: ExtractTextPlugin.extract({
+                    
+                    use: "css-loader!less-loader",
+                    fallback: "style-loader"
+                }),
             },
             {
                 test: /\.(svg|png|wav|gif|jpg)$/,
@@ -31,15 +34,23 @@ module.exports={
             },
             {
                 test: /\.css$/,
-                use: [
-                    {
-                        loader: "style-loader"
-                    }, {
-                        loader: "css-loader"
-                    }
-                ]
+                use: ExtractTextPlugin.extract({
+                    use: "css-loader",
+                    fallback: "style-loader"
+                }),
             }
         ]
         
-    }
+    },
+    plugins: [
+        new ExtractTextPlugin({ filename: '/css/[name].css', disable: false, allChunks: true}),
+        new CopyWebpackPlugin([{
+            from: path.join(__dirname, 'static/images'),
+            to: path.join(__dirname, '/dist/images'),
+        }]),
+        new CopyWebpackPlugin([{
+            from: path.join(__dirname, 'static/css'),
+            to: path.join(__dirname, '/dist/css'),
+        }]),
+    ]
 }

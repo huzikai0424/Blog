@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import axios from 'axios'
 import { Input, Select, Button, Form, Tooltip, Popconfirm, message} from 'antd'
-import 'antd/lib/input/style/css'
-import 'antd/lib/select/style/css'
-import 'antd/lib/button/style/css'
-import 'antd/lib/tooltip/style/css'
-import 'antd/lib/popconfirm/style/css'
-import 'antd/lib/message/style/css'
+// import 'antd/lib/input/style/css'
+// import 'antd/lib/select/style/css'
+// import 'antd/lib/button/style/css'
+// import 'antd/lib/tooltip/style/css'
+// import 'antd/lib/popconfirm/style/css'
+// import 'antd/lib/message/style/css'
 const { TextArea } = Input
 const Option = Select.Option
 const FormItem = Form.Item
 const parser = require('ua-parser-js')
-class Comment extends Component{
+class Comments extends Component{
     constructor(props) {
         super(props);
         this.formatTime = this.formatTime.bind(this)
@@ -340,5 +340,5 @@ class Comment extends Component{
     }
 }
 
-const CommentForm = Form.create()(Comment);
-export default CommentForm
+const CommentForm = Form.create()(Comments);
+export default Comments
