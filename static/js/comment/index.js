@@ -11,7 +11,7 @@ const { TextArea } = Input
 const Option = Select.Option
 const FormItem = Form.Item
 const parser = require('ua-parser-js')
-class Comments extends Component{
+class Comment extends Component{
     constructor(props) {
         super(props);
         this.formatTime = this.formatTime.bind(this)
@@ -340,5 +340,5 @@ class Comments extends Component{
     }
 }
 
-const CommentForm = Form.create()(Comments);
-export default Comments
+const CommentForm = Form.create()(Comment);
+export default CommentForm

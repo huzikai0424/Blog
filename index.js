@@ -11,7 +11,14 @@ const PORT=1234
 const app=new Koa()
 const c = require('child_process');
 const main = serve(path.join(__dirname,'./dist')) 
-
+const compress = require('koa-compress')
+app.use(compress({
+    filter: function (content_type) {
+        return /text/i.test(content_type)
+    },
+    threshold: 2048,
+    flush: require('zlib').Z_SYNC_FLUSH
+}))
 app.use(main) //静态资源
 app.use(views(resolve(__dirname,'./views'),{    //view默认模板后缀
     extension:'pug'
@@ -29,7 +36,7 @@ const CONFIG = {
 };
 app.use(session(CONFIG, app));
 app.use(router.routes()).use(router.allowedMethods)
-app.listen(1234)
+app.listen(PORT)
 console.log(`Server runing at http://localhost:${PORT}/`)
 //console.log("Server runing at port: " + PORT + ".");
 //c.exec(`start http://localhost:${PORT}`);

@@ -17,8 +17,13 @@ module.exports={
         rules:[
             {
                 test: /(\.jsx|\.js)$/,
-                use:{loader:"babel-loader"},
-                exclude:/node_modules/
+                loader:"babel-loader",
+                exclude:/node_modules/,
+                query: {
+                    plugins: [
+                        ['import', [{ libraryName: "antd", style: 'css' }]],
+                    ]
+                },
             },
             {
                 test: /\.less$/,
@@ -52,5 +57,6 @@ module.exports={
             from: path.join(__dirname, 'static/css'),
             to: path.join(__dirname, '/dist/css'),
         }]),
+       
     ]
 }
