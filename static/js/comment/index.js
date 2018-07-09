@@ -1,12 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios'
 import { Input, Select, Button, Form, Tooltip, Popconfirm, message} from 'antd'
-// import 'antd/lib/input/style/css'
-// import 'antd/lib/select/style/css'
-// import 'antd/lib/button/style/css'
-// import 'antd/lib/tooltip/style/css'
-// import 'antd/lib/popconfirm/style/css'
-// import 'antd/lib/message/style/css'
 const { TextArea } = Input
 const Option = Select.Option
 const FormItem = Form.Item
@@ -163,19 +157,14 @@ class Comment extends Component{
     
     render(){
         const { getFieldDecorator } = this.props.form
-        const selectBefore = (
-            <FormItem>
-                {getFieldDecorator('agreement',{
+        const selectBefore = getFieldDecorator('agreement',{
                     initialValue:"Https://"
                 })(
                     <Select style={{ width: 95 }}>
                         <Option value="Http://">Http://</Option>
                         <Option value="Https://">Https://</Option>
                     </Select>
-                )}
-            </FormItem>
-        );
-
+                )
         let result = this.state.commentList.map((obj,index)=>{
             let chilidCommentsArr=[]
             this.state.childComment.map((item,key)=>{
@@ -288,7 +277,7 @@ class Comment extends Component{
                             <TextArea placeholder={this.state.placeholder}  autosize={{ minRows: 3, maxRows: 6 }} tabIndex="1" />
                         )}
                     </FormItem>
-                    <br />
+                    
                     <div id="author-info">
                         <FormItem>
                             {getFieldDecorator('nickname', {
@@ -297,7 +286,7 @@ class Comment extends Component{
                                 <Input placeholder="昵称 (必填)" tabIndex="2"/>
                             )}
                         </FormItem>
-                        <br />
+                        
                         <FormItem
                             hasFeedback
                         >
@@ -309,13 +298,13 @@ class Comment extends Component{
                                 <Input placeholder="邮箱 (必填)" tabIndex="3"/>
                             )}
                         </FormItem>
-                        <br />
+                        
                         <FormItem>
                             {getFieldDecorator('website')(
                                 <Input addonBefore={selectBefore} tabIndex="4"/>
                             )}
                         </FormItem>
-                        <br />
+                        
                         <FormItem>
                             <Button 
                             type="primary"
