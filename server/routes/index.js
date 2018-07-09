@@ -91,7 +91,8 @@ router.get('/article/:id', async(ctx) => {
         id: id,
         pidComment: pidComment ? JSON.stringify(pidComment):[],
         isLogin:ctx.session.user?true:false,
-        sideBarData: sideBarData
+        sideBarData: sideBarData,
+        url:ctx.href
     })
 })
 router.get('/getArticleList',async(ctx)=>{
