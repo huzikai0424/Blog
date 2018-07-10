@@ -116,6 +116,11 @@ router.post('/submitComment', koaBody(), async(ctx)=>{
     const id = ctx.request.body.id
     const replyId = ctx.request.body.replyId ? ctx.request.body.replyId:0
     let data = [id, replyId ,postData.nickname, postData.email, postData.website, userAgent, postData.comment, postData.qq]
+    let res = await mysql.submitComment(data)
+    ctx.body = res
+    if(!res){
+        return;
+    }
     let mailObject = {
         blogName:config.themeOptions.nickname,
         replyNickNameTo: mailData.replyNiceName,
@@ -144,8 +149,7 @@ router.post('/submitComment', koaBody(), async(ctx)=>{
     
     mail.mailOptions = Object.assign(mail.mailOptions, mailTo)
     mail.sendMail()
-    let res = await mysql.submitComment(data)
-    ctx.body = res
+    
 })
 router.get('/getCommentList/:id',async(ctx)=>{
     const id = ctx.params.id
@@ -502,4 +506,5 @@ router.post('/upload',koaBody({
         // })
     }
 })
+
 module.exports = router

@@ -125,6 +125,10 @@ class Comment extends Component{
     handleSubmit=(e)=>{
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
+            if(err){
+                console.log(err)
+                return;
+            }
             let data = values
             data.website = data.website?(data.agreement + data.website).toLowerCase():""
             let id = this.props.data.id
