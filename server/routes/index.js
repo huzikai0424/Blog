@@ -133,7 +133,10 @@ router.post('/submitComment', koaBody(), async(ctx)=>{
     let newCommentObject = {
         blogName: config.themeOptions.nickname,
         articleTitle: mailData.title,
-        ip:ctx.ip,
+        ip: ctx.req.headers['x-forwarded-for'] ||
+            ctx.req.connection.remoteAddress ||
+            ctx.req.socket.remoteAddress ||
+            ctx.req.connection.socket.remoteAddress,
         website: postData.website,
         email: postData.email,
         comment: postData.comment,
