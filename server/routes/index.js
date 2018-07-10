@@ -14,7 +14,7 @@ const axios = require('axios')
 const commonJs = require('./common')
 const path = require('path')
 const mysql = require('../database/mysql') 
-
+const mail = require('../routes/mail')
 router.get('/', async (ctx) => {
     let startTime = new Date().getTime()
     const desc = config.article.desc ? "desc" : "asc"
@@ -92,7 +92,8 @@ router.get('/article/:id', async(ctx) => {
         pidComment: pidComment ? JSON.stringify(pidComment):[],
         isLogin:ctx.session.user?true:false,
         sideBarData: sideBarData,
-        url:ctx.href
+        url:ctx.href,
+        blogName: config.themeOptions.nickname
     })
 })
 router.get('/getArticleList',async(ctx)=>{
@@ -111,11 +112,46 @@ router.get('/getArticleList',async(ctx)=>{
 router.post('/submitComment', koaBody(), async(ctx)=>{
     const userAgent = ctx.req.headers['user-agent']
     const postData=ctx.request.body.data
+    const mailData = ctx.request.body.mailData
     const id = ctx.request.body.id
     const replyId = ctx.request.body.replyId ? ctx.request.body.replyId:0
     let data = [id, replyId ,postData.nickname, postData.email, postData.website, userAgent, postData.comment, postData.qq]
-    let res = await mysql.submitComment(data)
-    ctx.body = res
+    let mailObject = {
+        blogName:config.themeOptions.nickname,
+        replyNickNameTo: mailData.replyNiceName,
+        articleTitle: mailData.title,
+        oldComment: mailData.detail,
+        newreplyNickName: postData.nickname,
+        newComment: postData.comment,
+        articleUrl: mailData.url
+    }
+    let newCommentObject = {
+        blogName: config.themeOptions.nickname,
+        articleTitle: mailData.title,
+        ip:ctx.ip,
+        website: postData.website,
+        email: postData.email,
+        comment: mailData.url
+    }
+    let html = replyId ? mail.initReplyHtml(mailObject) : mail.initCommmentHtml(newCommentObject)
+
+    let mailTo = {
+        to: replyId ? mailData.to : config.contact.email,
+        subject: replyId ? `您在 [${mailData.blogName}] 的留言有了回复` : `您的文章 《${mailData.title}》 有新留言`,
+        html:html
+    }
+
+    ctx.body = mailTo 
+    // let html=
+    
+    // mail.mailOptions = Object.assign(mail.mailOptions, {
+    //     to: mailData.to,
+    //     subject: `您在 [${mailData.blogName}] 的留言有了回复`,
+    //     html: html
+    // })
+    // mail.sendMail()
+    // let res = await mysql.submitComment(data)
+    // ctx.body = res
 })
 router.get('/getCommentList/:id',async(ctx)=>{
     const id = ctx.params.id

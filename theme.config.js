@@ -43,7 +43,8 @@ module.exports ={
         qq:"380476852",
         wechat:"hzk0424",
         weibo:"https://weibo.com/p/1005055758170434",
-        github:"https://github.com/huzikai0424"
+        github:"https://github.com/huzikai0424",
+        email:"380476852@qq.com"
     },
     article:{
         orderBy:"postTime",

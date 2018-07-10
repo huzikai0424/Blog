@@ -69,11 +69,14 @@ class Comment extends Component{
         let minute = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes()
         return `${year}年${month}月${day}日 ${hour}:${minute}`
     }
-    reply(id,nickname){
+    reply(id,nickname,detail,email){
         
         this.setState({ 
             placeholder: `回复给: ${nickname}`,
-            replyId:id
+            replyId:id,
+            replyNiceName: nickname,
+            detail: detail,
+            email: email
         })
         this.props.form.getFieldInstance('comment').focus()
        // this.comment.focus()
@@ -123,13 +126,22 @@ class Comment extends Component{
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             let data = values
-            data.website = (data.agreement + data.website).toLowerCase()
+            data.website = data.website?(data.agreement + data.website).toLowerCase():""
             let id = this.props.data.id
             let replyId = this.state.replyId
+            let mailData = {
+                title: this.props.data.title,
+                to: this.state.email,
+                blogName: this.props.data.blogName,
+                replyNiceName: this.state.replyNiceName,
+                detail: this.state.detail,
+                url: window.location.href
+            }
             axios.post('/submitComment', {
                 data: data,
                 id: id,
-                replyId: replyId
+                replyId: replyId,
+                mailData: mailData
             })
             .then(function (response) {
                 if (response.data.affectedRows && response.statusText == "OK") {
@@ -211,13 +223,13 @@ class Comment extends Component{
                             <Popconfirm placement="topLeft" title="确定删除这条评论吗?" onConfirm={() => this.delete(obj.id, obj.pid)} okText="Yes" cancelText="No">
                                 <button className="delete">删除</button>
                             </Popconfirm>
-                            <button className="reply" onClick={() => this.reply(obj.id, obj.nickname)}>回复</button>
+                            <button className="reply" onClick={() => this.reply(obj.id, obj.nickname,obj.detail,obj.email)}>回复</button>
                         </div>
                     )
                 }else{
                     dom=(
                         <div className="operate">
-                            <button className="reply" onClick={() => this.reply(obj.id, obj.nickname)}>回复</button>
+                            <button className="reply" onClick={() => this.reply(obj.id, obj.nickname, obj.detail, obj.email)}>回复</button>
                         </div>
                     )
                 }

@@ -65,7 +65,9 @@ html
                 pageSize:!{pageSize},
                 id:!{id},
                 pidComment:!{pidComment},
-                isLogin:!{isLogin}
+                isLogin:!{isLogin},
+                title:!{JSON.stringify(data.title)},
+                blogName:!{JSON.stringify(blogName)}
             }
         script(src="/js/libs/jquery-1.11.1.min.js")
         script(src="/js/libs/CateNav.js")
