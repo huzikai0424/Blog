@@ -131,7 +131,8 @@ router.post('/submitComment', koaBody(), async(ctx)=>{
         ip:ctx.ip,
         website: postData.website,
         email: postData.email,
-        comment: mailData.url
+        comment: postData.comment,
+        articleUrl: mailData.url
     }
     let html = replyId ? mail.initReplyHtml(mailObject) : mail.initCommmentHtml(newCommentObject)
 
@@ -140,18 +141,11 @@ router.post('/submitComment', koaBody(), async(ctx)=>{
         subject: replyId ? `您在 [${mailData.blogName}] 的留言有了回复` : `您的文章 《${mailData.title}》 有新留言`,
         html:html
     }
-
-    ctx.body = mailTo 
-    // let html=
     
-    // mail.mailOptions = Object.assign(mail.mailOptions, {
-    //     to: mailData.to,
-    //     subject: `您在 [${mailData.blogName}] 的留言有了回复`,
-    //     html: html
-    // })
-    // mail.sendMail()
-    // let res = await mysql.submitComment(data)
-    // ctx.body = res
+    mail.mailOptions = Object.assign(mail.mailOptions, mailTo)
+    mail.sendMail()
+    let res = await mysql.submitComment(data)
+    ctx.body = res
 })
 router.get('/getCommentList/:id',async(ctx)=>{
     const id = ctx.params.id
