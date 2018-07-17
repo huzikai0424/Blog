@@ -1,0 +1,31 @@
+doctype html
+html
+    head
+        include components/meta.pug
+    body
+        include components/header.pug
+        main
+            .wrap
+                .leftBox
+                    article
+                        .article-box
+                            .article-title  
+                                h1 友链
+                            .markdown-body
+                                ul
+                                    each item in link
+                                        li
+                                            a(href=item.url target="_blank") #{item.linkName}
+                                            <br>
+                                            span #{item.description}
+                                hr
+                                
+                                p 图床还没做，板子也没挑好，暂时只能委屈下各位小伙伴了。#[img(src="https://i.loli.net/2018/07/13/5b480da24fee4.gif")]
+                                p 介意的小伙伴可以先撤下我的友链，等我做完了一起添加。
+
+
+                include components/sidebar.pug
+        
+        include components/footer.pug
+        script(src="/js/test.js")
+        

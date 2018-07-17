@@ -67,7 +67,7 @@ module.exports={
         )
     },
     initCommmentHtml: (newCommentObject) => {
-        let { blogName, articleTitle, ip, website, email, comment, articleUrl } = newCommentObject
+        let { blogName, articleTitle, ip, website, email, comment, articleUrl, newreplyNickName } = newCommentObject
         return (
             `<table border = "1" cellpadding = "0" cellspacing = "0" width = "600" align = "center" style = "border-collapse: collapse; border-style: solid; border-width: 1;border-color:#ddd;" >
             <tbody>
@@ -85,7 +85,7 @@ module.exports={
                 </tr>
                 <tr>
                     <td style="padding:15px;">
-                       	<p>昵称: ${blogName}</p>
+                       	<p>昵称: ${newreplyNickName}</p>
                         <p>IP: ${ip}</p>
                         <p>网站: <a href="${website}" target="_blank">${website}</a></p>
                         <p>邮箱: <a href="mailto:${email}" target="_blank">${email}</a></p>

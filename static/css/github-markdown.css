@@ -169,7 +169,10 @@
 .markdown-body img {
   border-style: none;
 }
-
+.markdown-body img[alt="center"]{
+  display: block;
+  margin: 0 auto;
+}
 .markdown-body code,
 .markdown-body kbd,
 .markdown-body pre {
@@ -532,6 +535,7 @@
 }
 
 .markdown-body li {
+  list-style-type:disc !important;
   word-wrap: break-all;
 }
 

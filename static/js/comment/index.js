@@ -174,11 +174,11 @@ class Comment extends Component{
     render(){
         const { getFieldDecorator } = this.props.form
         const selectBefore = getFieldDecorator('agreement',{
-                    initialValue:"Https://"
+                    initialValue:"https://"
                 })(
                     <Select style={{ width: 95 }}>
-                        <Option value="Http://">Http://</Option>
-                        <Option value="Https://">Https://</Option>
+                        <Option value="http://">http://</Option>
+                        <Option value="https://">https://</Option>
                     </Select>
                 )
         let result = this.state.commentList.map((obj,index)=>{
@@ -290,12 +290,14 @@ class Comment extends Component{
                         {getFieldDecorator('comment', {
                             rules: [{ required: true, message: '请至少输入一个汉字', pattern: /[\u4e00-\u9fa5]/gm}],
                         })(
-                            <TextArea placeholder={this.state.placeholder}  autosize={{ minRows: 3, maxRows: 6 }} tabIndex="1" />
+                            <TextArea placeholder={this.state.placeholder}  autosize={{ minRows: 6, maxRows: 6 }} tabIndex="1" />
                         )}
                     </FormItem>
                     
                     <div id="author-info">
-                        <FormItem>
+                        <FormItem
+                            hasFeedback
+                        >
                             {getFieldDecorator('nickname', {
                                 rules: [{ required: true, message: '昵称不能为空' }],
                             })(

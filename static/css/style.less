@@ -93,7 +93,7 @@ main{
 				margin-bottom: 10px;
 			}
 			margin-right:10px;
-			max-width:710px;
+			width:710px;
 			display:inline-block;
 			article{
 				background:#fff;
@@ -136,9 +136,13 @@ main{
 						font-size:14px;
 						line-height: 2;
 						color:#8590a6;
+						a{
+							font-size:14px;
+						}
 					}
 					.next_article{
 						overflow: hidden;
+						
 						a.prev{
 							float:left;
 						}
@@ -163,7 +167,14 @@ main{
 							margin-left:10px;
 							cursor: pointer;
 						}
-						
+						.ant-form-item{
+							margin-bottom: 9px;
+						}
+						#author-info{
+							.ant-form-item{
+								max-width: 280px;
+							}
+						}
 						h3{
 							text-align: center;	
 							height:20px;
@@ -492,6 +503,116 @@ main{
 			}
 		}
 	}
+	.ant-back-top{
+		width:auto;
+		height:auto;
+		right: 3%;
+    	bottom: 60px;
+	}
+	#rocket{
+		background: url('../images/gotop.png') no-repeat center;
+		width:50px;
+		height:60px;
+		opacity: .7;
+		cursor: pointer;
+		z-index: 999;
+		background-size: contain;
+	}
+}
+/*shuoshuo page*/
+.point-time {
+    content: "";
+    position: absolute;
+    width: 13px;
+    height: 13px;
+    top: 3px;
+    left: 11%;
+    background: #1c87bf;
+    margin-left: -4px;
+    border-radius: 50%;
+	box-shadow: 0 0 0 5px #fff;
+	p{
+		font-size:14px;
+	}
+}
+
+.text-orange {
+    color: #df846c;
+}
+
+.point-orange {
+    background-color: #df846c;
+}
+
+.shuo-content {
+    padding: 20px;
+}
+.shuo-content article {
+    position: relative;
+}
+.shuo-content article > h3 {
+    width: 15%;
+    height: 20px;
+    line-height: 20px;
+    font-size: 22px;
+    color: #df846c;
+    padding: 10px 0 20px;
+    font-weight: 600;
+}
+
+.shuo-content article > h3:after {
+    display: none;
+}
+
+.shuo-content article section {
+    padding: 0 0 30px;
+    position: relative;
+}
+.shuo-content article section:before {
+    content: "";
+    width: 5px;
+    top: 17px;
+    bottom: -17px;
+    left: 11%;
+    background: #e6e6e6;
+    position: absolute;
+}
+.shuo-content article section:last-child:before {
+    display: none;
+}
+.shuo-content article section time {
+    width: 8%;
+    display: block;
+    position: absolute;
+}
+.shuo-content article section time > span {
+    display: block;
+    text-align: right;
+}
+.shuo-content article section aside {
+    color: #333;
+    margin-left: 15%;
+    padding: 10px;
+    /*border: 1px solid #eee;*/
+    border-radius: 3px;
+    background: #f5f7f9;
+}
+.shuo-content article section .brief {
+    color: #9f9f9f;
+    text-align: right;
+    font-size: 12px;
+}
+
+.shuo-content article section p {
+    margin: 0;
+}
+.shuo-content span.date-time {
+    position: absolute;
+    margin-left: 13px;
+    font-size: 13px;
+	color: #999;
+	left:0;
+	top:0;
 }
 footer{
 	.heart{
@@ -519,6 +640,9 @@ footer{
 	}
 }
 @media screen and (max-width:710px){
+	main .wrap .leftBox{
+		width:100%;
+	}
 	main .wrap .leftBox article .article-box .card-thumb img{
 		width: 100%;
 	}

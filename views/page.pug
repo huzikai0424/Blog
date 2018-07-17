@@ -1,0 +1,23 @@
+doctype html
+html
+    head
+        include components/meta.pug
+    body
+        include components/header.pug
+        main
+            .wrap
+                .leftBox
+                    article
+                        .article-box
+                            .article-title  
+                                h1 #{data.title}
+                            
+                            .markdown-body !{markdown}
+
+
+
+                include components/sidebar.pug
+        
+        include components/footer.pug
+        script(src="/js/test.js")
+        

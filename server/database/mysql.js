@@ -1,6 +1,5 @@
 const mysql = require('mysql')
 const config = require('../../theme.config')
-const md5 = require('md5')
 const connection = mysql.createPool({
     host: 'localhost',
     user: 'root',
@@ -20,7 +19,7 @@ let query = (sql,data)=>{
  * 获取文章列表
  */
 exports.getArticleList = (orderBy,desc,page=0,pageSize=10)=>{
-    const sql = `select * from articles ORDER BY ${orderBy} ${desc} limit ${page},${pageSize}`
+    const sql = `select * from articles where isPage = 0 ORDER BY ${orderBy} ${desc} limit ${page},${pageSize}`
     const sql2= `select count(*) as total from articles`
     let querySql = `${sql};${sql2}`
     return query(querySql)
@@ -29,10 +28,18 @@ exports.getArticleList = (orderBy,desc,page=0,pageSize=10)=>{
  * 获取某ID下的文章
  */
 exports.getArticleById = (id)=>{
+    id = connection.escape(id)
     const sql = `select * from articles where id = ${id}`
     const sql2 = `select count(*) as commentCount from comments where article_id = ${id}`
     const querySql = `${sql};${sql2}`
     return query(querySql)
+}
+/**
+ * 根据linkName获取页面
+ */
+exports.getPage = (linkName)=>{
+    const sql = "select * from articles where linkName  = ?"
+    return query(sql,linkName)
 }
 /**
  * 获取评论数量
@@ -55,6 +62,7 @@ exports.getSidebarInfo=()=>{
  * 获取搜索的文章
  */
 exports.getSearchData = (search)=>{
+    search = connection.escape(search)
     let sql = `select * from articles where tags like '%${search}%' or posts like '%${search}%' or title like '%${search}%'`
     return query(sql)
 }
@@ -62,6 +70,7 @@ exports.getSearchData = (search)=>{
  * 获取某分类下的文章
  */
 exports.getTagsArtielc = (tags)=>{
+    tags = connection.escape(tags)
     let sql = `select * from articles where tags like '%${tags}%'`
     return query(sql)
 }
@@ -76,6 +85,7 @@ exports.addArticle = (data)=>{
  * 获得某文章下的评论列表和总条数
  */
 exports.getCommentListById = (id, pageIndex = 0, pageSize = config.comment.pageSize, orderBy = config.comment.orderBy, desc = config.comment.desc ? "desc" : "asc")=>{
+    id = connection.escape(id)
     const sql = `select * from comments where article_id = ${id} and pid = 0 ORDER BY ${orderBy} ${desc} limit ${pageIndex},${pageSize} `;
     const sql2 = `select count(*) as count from comments where article_id = ${id} union select count(*) as ctotal from comments where article_id = ${id} and pid= 0 `
     const querySql = `${sql};${sql2}`
@@ -166,4 +176,25 @@ exports.resetAccount=(username,password)=>{
     let sql = 'update user set username = ?,password = ?'
     let data = [username,password]
     return query(sql,data)
+}
+/**
+ * 查询友链
+ */
+exports.getLink = ()=>{
+    let sql = 'select * from link'
+    return query(sql)
+}
+/**
+ * 插入一言
+ */
+exports.insertHitokoto=(data)=>{
+    let sql = 'insert into hitokoto(hitokoto,postTime) values(?,?)'
+    return query(sql,data)
+}
+/**
+ * 查询一言
+ */
+exports.getHitokoto=()=>{
+    let sql = "select * from hitokoto order by postTime desc"
+    return query(sql)
 }

@@ -1,0 +1,24 @@
+doctype html
+html
+    head
+        include components/meta.pug
+    body
+        include components/header.pug
+        main
+            .wrap
+                .leftBox
+                   .shuo-content.site-box
+                        article
+                            h3 2018
+                            each item in hitokoto
+                                section
+                                    .point-time.point-orange
+                                    span.date-time 05/02
+                                    aside
+                                        p #{item.hitokoto}
+                                
+                include components/sidebar.pug
+        
+        include components/footer.pug
+        script(src="/js/test.js")
+        

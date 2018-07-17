@@ -15,6 +15,7 @@ const commonJs = require('./common')
 const path = require('path')
 const mysql = require('../database/mysql') 
 const mail = require('../routes/mail')
+const moment = require('moment')
 router.get('/', async (ctx) => {
     let startTime = new Date().getTime()
     const desc = config.article.desc ? "desc" : "asc"
@@ -131,6 +132,7 @@ router.post('/submitComment', koaBody(), async(ctx)=>{
         articleUrl: mailData.url
     }
     let newCommentObject = {
+        newreplyNickName: postData.nickname,
         blogName: config.themeOptions.nickname,
         articleTitle: mailData.title,
         ip: ctx.req.headers['x-forwarded-for'] ||
@@ -184,57 +186,6 @@ router.get('/userAgent',(ctx)=>{
     let userAgent = ctx.req.headers['user-agent']
     ctx.body = userAgent
 })
-
-// router.get('/update', async(ctx) => {
-//     let startTime = new Date().getTime()
-//     let postListMeta = await new Promise((resolve, reject) => {
-//         glob(join(__dirname, '../../article', "**/*.md"), function (err, files) {
-//             let postListMeta = []
-//             let tags = []
-//             files.forEach((item, index) => {
-//                 let meta = fm(fs.readFileSync(item).toString())
-//                 let html = ""
-//                 meta.attributes.tags.split("/").forEach((item, index) => {
-//                     if (tags.indexOf(item) == -1 && item) {
-//                         tags.push(item)
-//                     }
-//                 })
-//                 if (meta.body.split("<!--more-->").length < 2) { //没有more标签
-//                     html = commonJs.delHtmlTag(marked(meta.body)).substr(0, 130)   //截取去除html标签后的180字
-//                 } else {
-//                     let data = meta.body.split("<!--more-->")[0]
-//                     html = commonJs.delHtmlTag(marked(data))                     //截取move标签之前的全部
-//                 }
-//                 if (JSON.stringify(meta.attributes) != "{}") {
-//                     //meta.attributes.tags = tags
-//                     meta.attributes.profile = html
-//                     postListMeta.push(meta)
-//                 }
-//             })
-//             resolve(postListMeta)
-//         })
-//     })
-    
-//     const sort = ctx.query.sort == "asc" ? "asc" : "desc" // 1升序,-1降序
-//     let arr=[]
-//     postListMeta.forEach((item,index)=>{
-//         let attributes = item.attributes
-//         let timeStamp = Date.parse(attributes.date)
-//         let body = item.body
-//         let arrFormat = [
-//             attributes.title,
-//             attributes.profile,
-//             body,
-//             attributes.tags,
-//             timeStamp
-//         ]
-//         arr.push(arrFormat)
-//     })
-//     // ctx.body=arr
-//     // console.log(arr)
-//     let res = await mysql.addArticle([arr])
-//     ctx.body = res 
-// })
 
 router.get('/tags/:tags', async (ctx) => {
     let tags = ctx.params.tags
@@ -509,5 +460,89 @@ router.post('/upload',koaBody({
         // })
     }
 })
+router.get('/page/link', async (ctx) => {
+    let res = await mysql.getLink()
+    //侧边栏数据信息
+    let sideBarData = await axios.get(`http://localhost:1234/getSidebarInfo`)
+    if (sideBarData.statusText == "OK")
+        sideBarData = sideBarData.data
 
+    await ctx.render('link', {
+        link: res,
+        sideBarData: sideBarData,
+        config: config
+    })
+})
+router.get('/page/hitokoto', async (ctx) => {
+    let res = await mysql.getLink()
+    //侧边栏数据信息
+    let sideBarData = await axios.get(`http://localhost:1234/getSidebarInfo`)
+    if (sideBarData.statusText == "OK")
+        sideBarData = sideBarData.data
+    let data = await mysql.getHitokoto()
+    let map = {}, dest = []
+
+    data.forEach((item,index)=>{
+        
+        let year = moment(item.postTime).years()
+        
+        if(!map[year]){
+            dest.push({
+                "year": year,
+                "data":[item]
+            })
+            map[year]=item
+        }else{
+            for(let j = 0;j<dest.length;j++){
+                let dj = dest[j]
+                if(dj.year==year){
+                    dj.data.push(item)
+                    break
+                }
+            }
+        }
+
+    })
+    ctx.body = dest
+    return;
+    await ctx.render('timeLine', {
+        hitokoto: data,
+        sideBarData: sideBarData,
+        config: config
+    })
+})
+
+router.get('/page/:linkName',async(ctx)=>{
+    let linkName = ctx.params.linkName
+    let res = await mysql.getPage(linkName)
+    //commentCount：评论数量
+    let commentCountInfo = await mysql.getCommentCount()
+    //侧边栏数据信息
+    let sideBarData = await axios.get(`http://localhost:1234/getSidebarInfo`)
+    if (sideBarData.statusText == "OK")
+        sideBarData = sideBarData.data
+
+    const posts = marked(res[0].posts)
+    let data = res[0]
+    data.postTime = commonJs.formatTime(data.postTime)
+    await ctx.render('page',{
+        markdown:posts,
+        sideBarData: sideBarData,
+        commentCountInfo: commentCountInfo,
+        data: res[0],
+        config: config
+    })
+    //ctx.body = res[0]
+})
+router.get('/insertHitokoto',async(ctx)=>{
+    let data = await axios.get('https://v1.hitokoto.cn')
+    let { hitokoto, creator, created_at} = data.data
+    let arr = [`${hitokoto}--${creator}`, created_at]
+    let res = await mysql.insertHitokoto(arr)
+    ctx.body = res
+})
+router.get('/getHitokoto',async(ctx)=>{
+    let res = await mysql.getHitokoto()
+    ctx.body = res
+})
 module.exports = router
