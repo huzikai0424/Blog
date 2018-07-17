@@ -62,7 +62,6 @@ exports.getSidebarInfo=()=>{
  * 获取搜索的文章
  */
 exports.getSearchData = (search)=>{
-    search = connection.escape(search)
     let sql = `select * from articles where tags like '%${search}%' or posts like '%${search}%' or title like '%${search}%'`
     return query(sql)
 }
@@ -70,7 +69,6 @@ exports.getSearchData = (search)=>{
  * 获取某分类下的文章
  */
 exports.getTagsArtielc = (tags)=>{
-    tags = connection.escape(tags)
     let sql = `select * from articles where tags like '%${tags}%'`
     return query(sql)
 }
