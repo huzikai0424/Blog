@@ -46,15 +46,11 @@ class Comment extends Component{
 		}
 		axios.get(`/getCommentList/${id}?page=${page}&pageSize=${pageSize}`)
 			.then(function (response) {
-				if (response.statusText == 'OK') {
-					that.setState({
-						commentList: response.data.data,
-						currentPage: Number(response.data.page),
-						childComment: response.data.pidComment
-					})
-				} else {
-					console.log(`错误${response.data.message}`)
-				}
+				that.setState({
+					commentList: response.data.data,
+					currentPage: Number(response.data.page),
+					childComment: response.data.pidComment
+				})
 			})
 			.catch(function (error) {
 				console.log(error)
@@ -148,7 +144,7 @@ class Comment extends Component{
 				mailData: mailData
 			})
 				.then(function (response) {
-					if (response.data.affectedRows && response.statusText == 'OK') {
+					if (response.data.affectedRows) {
 						let commentsInfo = {
 							email: data.email,
 							nickname: data.nickname,
