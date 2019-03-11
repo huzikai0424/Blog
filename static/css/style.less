@@ -2,7 +2,6 @@
 	margin:0;
 	padding:0;
 	box-sizing: border-box;
-	font-family: "Microsoft YaHei";
 }
 a{
 	text-decoration: none !important;
@@ -21,6 +20,8 @@ body{
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
+	scroll-behavior:smooth;
+	font-family: 'Microsoft YaHei',"PingFangSC-Regular", sans-serif,Consolas, Monaco, 'Andale Mono', monospace;
 }
 .hidden{
 	display: none;
@@ -28,7 +29,7 @@ body{
 header {
 	background-color: #fff;
 	nav{
-	height:50px;
+	height:55px;
 	padding:10px 0;
 	display: flex;
 	justify-content: space-between;
@@ -36,10 +37,11 @@ header {
 	margin:0 auto;
 	max-width:960px;
 	.site-logo{
-		display: inline-block;
-		color: #df846c;
-		font-size: 24px;
-		
+		a{
+			display: inline-block;
+			color: #df846c !important;
+			font-size: 24px;
+		}
 	}
 	.site-nav{
 		display:flex;
@@ -58,7 +60,7 @@ header {
 	}
 	.site-search{
 		display:inline-block;
-		
+
 		input#search{
 			width: 200px;
 			border: 1px solid #eee;
@@ -73,7 +75,7 @@ header {
 				outline:none;
 			}
 		}
-		
+
 	}
 	}
 }
@@ -100,7 +102,7 @@ main{
 				margin-bottom: 10px;
 				border-radius: 5px;
 				box-shadow: 0 1px 3px rgba(0,0,0,.1);
-				
+
 				.article-box{
 					overflow:hidden;
 					padding:20px;
@@ -142,7 +144,7 @@ main{
 					}
 					.next_article{
 						overflow: hidden;
-						
+
 						a.prev{
 							float:left;
 						}
@@ -176,7 +178,7 @@ main{
 							}
 						}
 						h3{
-							text-align: center;	
+							text-align: center;
 							height:20px;
 							line-height:20px;
 							color:#7D7D7D;
@@ -277,11 +279,11 @@ main{
 									.ua{
 										margin-right: 6px;
 									}
-									
-									
+
+
 								}
 								.comment-body{
-									line-height: 2; 
+									line-height: 2;
 									color: #63686d;
 									font-size: 15px;
 									margin-top:10px;
@@ -364,6 +366,8 @@ main{
 				top:0;
 				width: 240px;
 			}
+			position:sticky;
+			top:0;
 			float:right;
 			width:240px;
 			aside{
@@ -419,7 +423,7 @@ main{
 								line-height: 18px;
 							}
 						}
-						
+
 					}
 				}
 				.contact{
@@ -471,8 +475,8 @@ main{
 						color:#797979;
 						font-size:15px;
 					}
-					
-					
+
+
 
 				}
 			}
@@ -619,7 +623,7 @@ footer{
 		color:#f73f51;
 	}
 	background-color: #fff;
-	padding:5px 0;
+	padding:10px 0;
 	text-align:center;
 	line-height:2;
 	color:#999;
