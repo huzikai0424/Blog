@@ -17,6 +17,7 @@ class Article extends Component {
 				showTotal: (total, range) => `第${range[0]}-${range[1]}条 共 ${total} 条`,
 				onChange: (page, pageSize) => {
 					this.setState({ page, pageSize })
+					this.getArticleList(page, pageSize)
 				}
 			}
 		}
@@ -79,7 +80,7 @@ class Article extends Component {
 			key: 'postTime',
 		},
 		{
-			title: '其他',
+			title: '信息',
 			dataIndex: 'views',
 			key: 'views',
 			render:(text,row)=>(
@@ -89,7 +90,6 @@ class Article extends Component {
 					<span>
 						{row.like ? `${row.like}次点赞` : ''}
 					</span>
-
 				</span>
 			)
 		},{

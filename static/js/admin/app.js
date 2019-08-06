@@ -106,9 +106,6 @@ class App extends React.Component {
 							<Route paht="/admin/account" component={account} />
 						</Switch>
 					</Content>
-					<Footer style={{ textAlign: 'center' }}>
-						Ant Design ©2016 Created by Ant UED
-					</Footer>
 				</Layout>
 			</Layout>
 		)

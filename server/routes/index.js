@@ -5,7 +5,6 @@ const koaBody = require('koa-body')
 const router = new Router()
 const marked = require('marked')
 const fs = require('fs')
-//const mysql = require('mysql')
 const fm = require('front-matter')
 const config = require('../../theme.config')
 const axios = require('axios')
@@ -14,37 +13,12 @@ const path = require('path')
 const mysql = require('../database/mysql')
 const mail = require('../routes/mail')
 const moment = require('moment')
-router.get('/', async (ctx) => {
-	let startTime = new Date().getTime()
-	const desc = config.article.desc ? 'desc' : 'asc'
-	const orderBy = config.article.orderBy
-	const pageSize = config.article.pageSize
-	let res = await mysql.getArticleList(orderBy, desc, 0, pageSize)
-	let tagsArr = []
-	res[0].forEach((item) => {
-		item.postTime = commonJs.formatTime(item.postTime)
-	})
-	//commentCount：评论数量
-	let commentCountInfo = await mysql.getCommentCount()
-	//侧边栏数据信息
-	let sideBarData = await axios.get('http://localhost:1234/getSidebarInfo')
-	if (sideBarData.statusText == 'OK')
-		sideBarData = sideBarData.data
-	await ctx.render('index', {
-		res: res[0],
-		config: config,
-		tags: tagsArr,
-		loadTime: new Date().getTime() - startTime,
-		commentCountInfo: commentCountInfo,
-		sideBarData: sideBarData
-	})
-})
 
 router.get('/article/:id', async(ctx) => {
 	let startTime = new Date().getTime()
 	const id = Number(ctx.params.id)
 	let articleDate = await mysql.getArticleById(id).then(async res=>{
-		nextArtilce = await mysql.getArticleNext(res[0][0].postTime)
+		let nextArtilce = await mysql.getArticleNext(res[0][0].postTime)
 		res[0][0].postTime = commonJs.formatTime(res[0][0].postTime)
 		let data = {
 			data:res[0][0],
@@ -64,7 +38,7 @@ router.get('/article/:id', async(ctx) => {
 		return data
 	})
 	let pidArr = []
-	commentList.commentList.forEach((item, index, arr) => {
+	commentList.commentList.forEach((item) => {
 		pidArr.push(item.id)
 	})
 	let arr = pidArr.join(',')
@@ -161,7 +135,7 @@ router.get('/getCommentList/:id',async(ctx)=>{
 	const pageIndex = (page - 1) * pageSize
 	let res = await mysql.getCommentListById(id, pageIndex, pageSize)
 	let pidArr = []
-	res[0].forEach((item,index,arr)=>{
+	res[0].forEach((item)=>{
 		pidArr.push(item.id)
 	})
 	let arr = pidArr.join(',')
@@ -188,7 +162,7 @@ router.get('/userAgent',(ctx)=>{
 router.get('/tags/:tags', async (ctx) => {
 	let tags = ctx.params.tags
 	let res = await mysql.getTagsArtielc(tags)
-	res.forEach((item, index) => {
+	res.forEach((item) => {
 		item.postTime = commonJs.formatTime(item.postTime)
 	})
 
@@ -229,7 +203,7 @@ router.get('/getSidebarInfo',async(ctx)=>{
 router.get('/search/:search',async(ctx)=>{
 	let search = ctx.params.search
 	let res = await mysql.getSearchData()
-	res.forEach((item, index) => {
+	res.forEach((item) => {
 		item.postTime = commonJs.formatTime(item.postTime)
 	})
 
@@ -262,7 +236,6 @@ router.get('/deleteArticleById/:id',async(ctx)=>{
 	if (id){
 		let res = await mysql.deleteArticleById(id)
 		if (res.affectedRows){
-			let url = path.join(__dirname, '../../article', fileName)
 			fs.unlink(path.join(__dirname, '../../article', fileName),(err)=>{
 				if (err)
 					console.log(err)
@@ -472,7 +445,6 @@ router.get('/page/link', async (ctx) => {
 	})
 })
 router.get('/page/hitokoto', async (ctx) => {
-	let res = await mysql.getLink()
 	//侧边栏数据信息
 	let sideBarData = await axios.get('http://localhost:1234/getSidebarInfo')
 	if (sideBarData.statusText == 'OK')
@@ -480,7 +452,7 @@ router.get('/page/hitokoto', async (ctx) => {
 	let data = await mysql.getHitokoto()
 	let map = {}, dest = []
 
-	data.forEach((item,index)=>{
+	data.forEach((item)=>{
 
 		let year = moment(item.postTime).years()
 

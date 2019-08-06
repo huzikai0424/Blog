@@ -1,10 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { BrowserRouter, Route, Switch} from 'react-router-dom'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import { ConfigProvider} from 'antd'
 import Login from './login/Login'
-import { LocaleProvider } from 'antd'
-import zh_CN from 'antd/lib/locale-provider/zh_CN'
-import 'moment/src/locale/zh-cn'
+import zh_CN from 'antd/es/locale/zh_CN'
 import App from './app'
 class MRoute extends React.Component{
 	render(){
@@ -25,6 +24,6 @@ class MRoute extends React.Component{
 }
 
 ReactDOM.render(
-	<LocaleProvider locale={zh_CN}><MRoute /></LocaleProvider>,
+	<ConfigProvider locale={zh_CN}><MRoute /></ConfigProvider>,
 	document.getElementById('root')
 )

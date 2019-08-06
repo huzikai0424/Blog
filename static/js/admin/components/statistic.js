@@ -1,30 +1,35 @@
 import React, { Component } from 'react'
 import {Statistic,Row,Col} from 'antd'
 import axios from 'axios'
-import personalOptions from '../../../../theme.config'
 import dayjs from 'dayjs'
 class StatisticShow extends Component {
 	constructor(props) {
 		super(props)
 		this.state = {
 			data:{},
-			now:dayjs()
+			now: dayjs(),
+			options: {}
 		}
 	}
 	componentDidMount(){
 		//侧边栏数据信息
-		axios.get('http://localhost:1234/getSidebarInfo').then(res=>{
+		axios.get('/api/getSidebarInfo').then(res => {
 			this.setState({
 				data:res.data
 			})
 		}).catch(err=>{
 			console.error(err)
 		})
+		axios.get('/api/getOptions').then(res => {
+			this.setState({
+				options:res.data
+			})
+		})
 	}
 	render() {
 		const {totalArticle,totalComment} = this.state.data
-		const {now} = this.state
-		const timeDiff = now.diff(dayjs(personalOptions.personalOptions.blogAge),'day')
+		const {now,options} = this.state
+		const timeDiff = now.diff(dayjs(options.personalOptions && options.personalOptions.blogAge),'day')
 		return (
 			<Row gutter={16}>
 				<Col span={3}>

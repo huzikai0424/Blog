@@ -37,6 +37,7 @@
         "no-console":0,
         "keyword-spacing":"warn",
         "space-infix-ops":"warn",
-        "space-unary-ops":"warn"
+        "space-unary-ops":"warn",
+        "require-atomic-updates":0
     }
 }

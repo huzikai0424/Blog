@@ -3,7 +3,7 @@ const config = require('../../theme.config')
 const connection = mysql.createPool({
 	host: 'localhost',
 	user: 'root',
-	password: 'newpassword',
+	password: '',
 	database: 'blog',
 	multipleStatements: true
 })
@@ -85,7 +85,7 @@ exports.addArticle = (data)=>{
 exports.getCommentListById = (id, pageIndex = 0, pageSize = config.comment.pageSize, orderBy = config.comment.orderBy, desc = config.comment.desc ? 'desc' : 'asc')=>{
 	id = connection.escape(id)
 	const sql = `select * from comments where article_id = ${id} and pid = 0 ORDER BY ${orderBy} ${desc} limit ${pageIndex},${pageSize} `
-    const sql2 = `select count(*) as count from comments where article_id = ${id} union select count(*) as ctotal from comments where article_id = ${id} and pid= 0 `
+	const sql2 = `select count(*) as count from comments where article_id = ${id} union select count(*) as ctotal from comments where article_id = ${id} and pid= 0 `
 	const querySql = `${sql};${sql2}`
 	return query(querySql)
 }
@@ -101,7 +101,7 @@ exports.getChildCommentList = (pid)=>{
  * 插入评论
  */
 exports.submitComment = (data)=>{
-	let addsql = 'insert into comments(article_id,pid,nickname,email,website,ua,detail,qq,timestamp) values (?,?,?,?,?,?,?,?,NOW())';
+	let addsql = 'insert into comments(article_id,pid,nickname,email,website,ua,detail,qq,timestamp) values (?,?,?,?,?,?,?,?,NOW())'
 	return query(addsql,data)
 }
 /**
@@ -123,7 +123,7 @@ exports.pvAddOne = (id)=>{
 /**
  * 获取所有评论
  */
-exports.getCommentList = (page = 1, pagesize = config.comment.pageSize,orderBy = config.comment.orderBy, desc = config.comment.desc ? 'desc':'asc')=>{
+exports.getCommentList = (page = 1, pagesize = config.comment.pageSize,orderBy = config.comment.orderBy, desc = config.comment.desc ? 'desc' : 'asc')=>{
 	let start = (page - 1) * pagesize
 	let sql = 'select a.id,a.nickname,a.detail,b.title,a.website,a.email,a.`timestamp`,a.article_id from comments a,articles b WHERE a.article_id=b.id ORDER By timestamp desc '
 	let sql2 = 'select count(*) as total from comments'
@@ -194,5 +194,33 @@ exports.insertHitokoto = (data)=>{
  */
 exports.getHitokoto = ()=>{
 	let sql = 'select * from hitokoto order by postTime desc'
+	return query(sql)
+}
+/**
+ * 查询配置文件
+ */
+exports.getOptions = () => {
+	let sql = 'select * from options where id = 1'
+	return query(sql)
+}
+/**
+ * 更新配置文件
+ */
+exports.updateOptions = (data) => {
+	let sql = `replace into options(id, data) values(1,'${data}')`
+	return query(sql)
+}
+/**
+ * 获得所有标签
+ */
+exports.getAllTags = () => {
+	let sql = 'select tags from articles'
+	return query(sql)
+}
+/**
+ * 获得所有分类
+ */
+exports.getAllTypes = () => {
+	let sql = 'select type from articles'
 	return query(sql)
 }

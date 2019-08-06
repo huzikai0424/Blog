@@ -4,14 +4,15 @@ const serve = require('koa-static')
 const {resolve} = require('path')
 const path = require('path')
 const session = require('koa-session')
-//const {connect,initSchemas} =require('./server/database/init')
-
-const router = require('./server/routes/index')
+const router = require('./server/newRouters/index')
 const PORT = 1234
 const app = new Koa()
 const c = require('child_process')
 const main = serve(path.join(__dirname,'./dist'))
 const compress = require('koa-compress')
+const env = process.env.NODE_ENV || 'development'
+
+
 app.use(compress({
 	filter: function (content_type) {
 		return /text/i.test(content_type)
@@ -35,7 +36,18 @@ const CONFIG = {
 	renew: false,  //(boolean) renew session when session is nearly expired,
 }
 app.use(session(CONFIG, app))
-app.use(router.routes()).use(router.allowedMethods)
+app.use(router())
+// if (env === 'development'){
+// 	const webpack = require('webpack')
+// 	const webpackDevMiddleware = require('koa-webpack-dev-middleware')	//处理静态文件
+// 	const webpackHotMiddleware = require('koa-webpack-hot-middleware')	//实现无刷新更新
+// 	const webpackConfig = require('./webpack.config.dev.js')
+// 	const compiler = webpack(webpackConfig)
+// 	app.use(webpackDevMiddleware(compiler),{
+// 		noInfo: false,
+// 	})
+// 	app.use(webpackHotMiddleware(compiler))
+// }
 app.listen(PORT)
 console.log(`Server runing at http://localhost:${PORT}/`)
 //console.log("Server runing at port: " + PORT + ".");
