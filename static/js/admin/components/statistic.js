@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 import {Statistic,Row,Col} from 'antd'
 import axios from 'axios'
 import dayjs from 'dayjs'
+import options from '../../../../theme.config'
 class StatisticShow extends Component {
 	constructor(props) {
 		super(props)
 		this.state = {
 			data:{},
 			now: dayjs(),
-			options: {}
 		}
 	}
 	componentDidMount(){
@@ -20,15 +20,10 @@ class StatisticShow extends Component {
 		}).catch(err=>{
 			console.error(err)
 		})
-		axios.get('/api/getOptions').then(res => {
-			this.setState({
-				options:res.data
-			})
-		})
 	}
 	render() {
 		const {totalArticle,totalComment} = this.state.data
-		const {now,options} = this.state
+		const {now} = this.state
 		const timeDiff = now.diff(dayjs(options.personalOptions && options.personalOptions.blogAge),'day')
 		return (
 			<Row gutter={16}>
