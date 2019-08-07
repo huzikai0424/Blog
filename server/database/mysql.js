@@ -142,14 +142,14 @@ exports.deleteComments = (arr) => {
  * 更新文章
  */
 exports.updateArticleById = (id,postDate)=>{
-	let sql = `update articles set title=?,posts=?,type=?,views=?,tags=?,postTime=?,updateTime=? where id=${id}`
+	let sql = `update articles set title=?,posts=?,type=?,tags=?,postTime=?,updateTime=? where id=${id}`
 	return query(sql, postDate)
 }
 /**
  * 发表文章
  */
 exports.postArticle = (postDate)=>{
-	let sql = 'insert into articles(title,des,posts,type,views,tags,postTime) values (?,?,?,?,?,?,?)'
+	let sql = 'insert into articles(title,des,posts,type,tags,postTime) values (?,?,?,?,?,?)'
 	let arr = postDate
 	return query(sql,arr)
 }

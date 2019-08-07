@@ -36,9 +36,8 @@ class Editor extends Component {
 					const data = res.data
 					this.props.form.setFieldsValue({
 						title:data.title,
-						type: data.type ? data.type : '',
-						tags:data.tags,
-						views:data.views,
+						type: data.type,
+						tags: data.tags.split('/'),
 						postTime:moment(data.postTime)
 					})
 				})
@@ -94,15 +93,13 @@ class Editor extends Component {
 				this.setState({
 					reload:true
 				})
-				
 				let markdown = this.smde.value()
 				let data = {
 					id:Number(this.state.id),
 					title: values.title,
-					type: values.type,
-					views: values.views,
+					type: values.type.toString(),
 					posts: markdown,
-					tags: values.tags,
+					tags: values.tags.join('/'),
 					postTime: moment(values.postTime).unix() * 1000,
 					updateTime:moment().unix() * 1000,
 					oldPath: this.state.oldPath,
@@ -112,15 +109,15 @@ class Editor extends Component {
 					axios.post('/updateArticleById', {data})
 						.then((res) =>{
 							setTimeout(() => {
+								message.success('更新成功',1)
 								this.setState({
 									reload: false
+								}, () => {
+									setTimeout(() => {
+										this.props.history.push('/admin/article')	
+									},1500)
 								})
-								message.success('更新成功',1)
 							}, 500)
-						
-							setTimeout(() => {
-								this.props.history.push('/admin/article')
-							}, 1500)
 							console.log(res)
 						})
 						.catch((err) =>{
@@ -137,14 +134,15 @@ class Editor extends Component {
 						if (res.data.affectedRows){
 							
 							setTimeout(() => {
+								message.success('发布成功', 1)
 								this.setState({
 									reload: false
+								}, () => {
+									setTimeout(() => {
+										this.props.history.push('/admin/article')
+									}, 1500)
 								})
-								message.success('发布成功', 1)
 							}, 500)
-							setTimeout(() => {
-								this.props.history.push('/admin/article')
-							}, 1500)
 						}
 					}).catch((err)=>{
 						this.setState({
@@ -195,9 +193,8 @@ class Editor extends Component {
 						})
 						that.props.form.setFieldsValue({
 							title: res.data.title,
-							type: res.data.type ? res.data.type : '',
-							tags: res.data.tags ? res.data.tags : '',
-							views: res.data.views ? res.data.views : 0,
+							type: res.data.type ? res.data.type : [],
+							tags: res.data.tags ? res.data.tags : [],
 							postTime: moment(res.data.postTime)
 						})
 						that.smde.value(res.md)
@@ -238,32 +235,24 @@ class Editor extends Component {
 						)}
 					</FormItem>
 					<FormItem >
-						{getFieldDecorator('type')(
+						{getFieldDecorator('type', {
+							getValueFromEvent:value=>value.slice(0, 1)
+						})(
 							<Select
-								showSearch
+								mode='tags'
 								style={{ width: 200 }}
 								placeholder="输入文章分类"
-								optionFilterProp="children"
-								filterOption={(input, option) =>
-									option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-								}
 							>
 								{typeList}
 							</Select>
 						)}
 					</FormItem>
 					<FormItem >
-						{getFieldDecorator('tags', {
-							rules: [{ required: true }],
-						})(
+						{getFieldDecorator('tags')(
 							<Select
-								showSearch
-								style={{ width: 200 }}
+								mode="tags"
+								style={{ width: 700 }}
 								placeholder="输入文章标签"
-								optionFilterProp="children"
-								filterOption={(input, option) =>
-									option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-								}
 							>
 								{tagList}
 							</Select>
@@ -274,7 +263,7 @@ class Editor extends Component {
 							rules: [{ type: 'object', required: true, message: '文章发布时间发不能为空' }],
 						})(
 							<DatePicker
-								style={{ width: 200 }}
+								style={{ width: 700 }}
 								disabledDate={this.disabledDate}
 							/>
 						)}

@@ -279,8 +279,8 @@ router.post('/updateArticleById',koaBody(),async(ctx)=>{
 		return
 	}
 	let postDate = ctx.request.body.data
-	let { id, posts, postTime, tags, title, type, updateTime,views} = postDate
-	let arr = [title,posts,type,views,tags,postTime,updateTime]
+	let { id, posts, postTime, tags, title, type, updateTime} = postDate
+	let arr = [title,posts,type,tags,postTime,updateTime]
 	let res = await mysql.updateArticleById(id, arr)
 	ctx.body = res
 })
@@ -290,7 +290,7 @@ router.post('/postArticle',koaBody(),async(ctx)=>{
 		return
 	}
 	let postDate = ctx.request.body.data
-	let { posts, postTime, tags, title, type, views, oldPath, newPath} = postDate
+	let { posts, postTime, tags, title, type, oldPath, newPath} = postDate
 	let html = ''
 
 	if (posts.split('<!--more-->').length < 2) { //没有more标签
@@ -299,7 +299,7 @@ router.post('/postArticle',koaBody(),async(ctx)=>{
 		let data = posts.split('<!--more-->')[0]
 		html = commonJs.delHtmlTag(marked(data))                     //截取move标签之前的全部
 	}
-	let arr = [title, html, posts, type, Number(views), tags, postTime]
+	let arr = [title, html, posts, type, tags, postTime]
 	let res = await mysql.postArticle(arr)
 	if (res.affectedRows){
 		fs.rename(oldPath, newPath, (err) => {
