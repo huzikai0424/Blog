@@ -402,7 +402,7 @@ router.post('/upload',koaBody({
 		ctx.response.status = 403
 		return
 	}
-	let data = ctx.request.body.files.file
+	let data = ctx.request.files.file
 	let fileName = data.name
 	let oldPath = path.join(data.path)
 	let newPath = path.join(__dirname,'../../article',fileName)
