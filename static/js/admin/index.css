@@ -19,4 +19,9 @@ html, body, #root {
 .trigger:hover {
   color: #1890ff;
 }
+.statisticBox{
+  background: #fff;
+  text-align: center;
+  padding:5px 15px !important;
+}
 

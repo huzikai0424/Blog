@@ -8,7 +8,7 @@ html
     body
         #root
         script.
-            var session = !{JSON.stringify(session)};
+            var session = !{session?JSON.stringify(session):false};
         script(src="/js/admin.js")
         
         

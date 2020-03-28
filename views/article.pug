@@ -1,10 +1,10 @@
 doctype html
 html
     head
-        
+
         link(href="/css/comment.css", rel="stylesheet")
         include components/meta.pug
-        
+
     body
         include components/header.pug
         main
@@ -12,7 +12,7 @@ html
                 .leftBox
                     article
                         .article-box
-                            .article-title  
+                            .article-title
                                 h1 #{data.title}
                             .article-info 发表于 #{data.postTime} #{data.views}次浏览
                             .markdown-body !{markdown}
@@ -20,43 +20,22 @@ html
                         .article-box
                             .copyright
                                 p #[strong 版权声明: ]#[span 本站文章除特别声明外，均为本站原创或翻译。转载请注明出处，尊重他人劳动成果。]
-                                p #[strong 转载请注明出处链接: ]#[a(href=url) #[span #{data.title}] ] 
+                                p #[strong 转载请注明出处链接: ]#[a(href=url) #[span #{data.title}] ]
                     article
                         .article-box
                             .next_article
-                                
+
                                 if preArticle
-                                    a.prev(href=`${preArticle.id}`) << #{preArticle.title} 
+                                    a.prev(href=`${preArticle.id}`) << #{preArticle.title}
                                 if nextArtilce
                                     a.next(href=`${nextArtilce.id}`) #{nextArtilce.title} >>
                     article
                         .article-box
                             #comment
-                                
+
                 .rightBox
                     #active-block
-                        aside.aboutMe
-                            .photo-background
-                            .avatar
-                                img(src="/images/avatar.jpg" alt="头像")
-                            .notes 最强咸鱼...
-                            .statistics
-                                ul
-                                    li
-                                        .count #{sideBarData.totalArticle}
-                                        .type 文章
-                                    li
-                                        .count #{sideBarData.tags.length}
-                                        .type 标签
-                                    li
-                                        .count #{sideBarData.totalComment}
-                                        .type 评论
-                            .contact
-                                ul
-                                    li #[img(src="/images/QQ.png")]  QQ
-                                    li #[img(src="/images/weixin.png")] 微信
-                                    li #[img(src="/images/weibo.png")] #[a(href=`${config.contact.weibo}`  target="_blank" ) 微博] 
-                                    li #[img(src="/images/github3.png")] #[a(href=`${config.contact.github}` target="_blank") Github] 
+                        include components/sidebar-aboutMe.pug
                         aside#article-nav
             #backTop
         include components/footer.pug
@@ -70,10 +49,5 @@ html
                 title:!{JSON.stringify(data.title)},
                 blogName:!{JSON.stringify(blogName)}
             }
-        script(src="/js/libs/jquery-1.11.1.min.js")
-        script(src="/js/libs/CateNav.js")
+        script(src="/js/lib.js")
         script(src="/js/comment.js")
-        script.
-            $(function(){	
-                $.CateNav('.markdown-body','#article-nav');//第一个参数为存放文章内容的box,第二个参数为存放生成目录的box	
-            })
